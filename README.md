@@ -4,6 +4,8 @@
 
 ---
 
+https://edusphere-thbr.onrender.com/
+
 ## 📋 **Project Overview**
 
 EduSphere is a modern, full-stack web application built to revolutionize online education and competitive exam preparation. The platform serves three distinct user roles - Students, Faculty, and Administrators - each with specialized dashboards and functionality tailored to their needs.
