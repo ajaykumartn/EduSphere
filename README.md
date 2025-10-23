@@ -297,36 +297,6 @@ EduSphere/
 - **Charts**: Interactive Chart.js visualizations
 - **Animations**: Smooth CSS transitions and effects
 
-## 🚀 Deployment
-
-### Quick Deploy to Render
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
-### Manual Deployment Steps
-
-1. **Push to GitHub:**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin YOUR_GITHUB_REPO_URL
-   git push -u origin main
-   ```
-
-2. **Deploy on Render:**
-   - Connect your GitHub repository
-   - Set environment variables:
-     - `FLASK_ENV=production`
-     - `FLASK_DEBUG=false`
-     - `GEMINI_API_KEY=your_api_key` (optional)
-   - Deploy automatically
-
-3. **Access your live application:**
-   - URL: `https://your-app-name.onrender.com`
-   - Use demo credentials to test
-
-**📖 Detailed deployment guide:** See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
 
 ### Deployment Features
 - **Auto-initialization**: Database and sample data setup automatically
