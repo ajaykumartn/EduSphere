@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Courses - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Course Catalog</h1>
+                <p class="lead text-muted">Choose from our comprehensive collection of 70+ exam preparation courses</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-lg-8 col-md-6">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="courseSearch" placeholder="Search courses by name or exam type...">
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mt-2 mt-md-0">
+            <select class="form-select" id="categoryFilter">
+                <option value="">All Categories</option>
+                <option value="JEE">JEE Engineering</option>
+                <option value="NEET">NEET Medical</option>
+                <option value="CAT">CAT & MBA</option>
+                <option value="UPSC">UPSC Civil Services</option>
+                <option value="SSC">SSC & Government</option>
+                <option value="Banking">Banking & Finance</option>
+                <option value="Class">School Education</option>
+                <option value="GATE">GATE & Technical</option>
+                <option value="Professional">Professional Courses</option>
+                <option value="Language">Language & Communication</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Course Statistics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="bg-light rounded p-3">
+                <div class="row text-center">
+                    <div class="col-6 col-md-3">
+                        <h4 class="text-primary mb-0">{{ courses|length }}</h4>
+                        <small class="text-muted">Total Courses</small>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <h4 class="text-success mb-0">50+</h4>
+                        <small class="text-muted">Exam Types</small>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <h4 class="text-info mb-0">10k+</h4>
+                        <small class="text-muted">Students</small>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <h4 class="text-warning mb-0">4.8★</h4>
+                        <small class="text-muted">Avg Rating</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Courses Grid -->
+    <div class="row g-4" id="coursesContainer">
+        {% for course in courses %}
+        <div class="col-lg-4 col-md-6 course-card" data-course-name="{{ course[1]|lower }}" data-course-description="{{ course[2]|lower }}">
+            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center position-relative" style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-graduation-cap fa-4x text-white"></i>
+                    {% if course[0] in enrolled_course_ids %}
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i>Enrolled
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title fw-bold">{{ course[1] }}</h5>
+                    <p class="card-text text-muted flex-grow-1">{{ course[2] }}</p>
+                    
+                    <!-- Course Features -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between text-muted small mb-2">
+                            <span><i class="fas fa-clock me-1"></i>Self-paced</span>
+                            <span><i class="fas fa-certificate me-1"></i>Certificate</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small">
+                            <span><i class="fas fa-video me-1"></i>Video Lectures</span>
+                            <span><i class="fas fa-question-circle me-1"></i>Practice Tests</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        {% if current_user.is_authenticated %}
+                            {% if course[0] in enrolled_course_ids %}
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('dashboard') }}" class="btn btn-success flex-grow-1">
+                                        <i class="fas fa-play me-2"></i>Continue Learning
+                                    </a>
+                                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Course Details">
+                                        <i class="fas fa-info"></i>
+                                    </button>
+                                </div>
+                            {% else %}
+                                <a href="{{ url_for('enroll', course_id=course[0]) }}" class="btn btn-primary w-100 enroll-btn">
+                                    <i class="fas fa-plus me-2"></i>Enroll Now
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="btn btn-primary w-100">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login to Enroll
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span><i class="fas fa-users me-1"></i>{{ (range(800, 2500) | random) }} Students</span>
+                        <span><i class="fas fa-star me-1 text-warning"></i>{{ (range(42, 50) | random / 10) }} Rating</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- No Results Message -->
+    <div id="noResults" class="text-center py-5" style="display: none;">
+        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+        <h3>No courses found</h3>
+        <p class="text-muted">Try adjusting your search criteria or browse all courses.</p>
+        <button class="btn btn-primary" onclick="clearFilters()">
+            <i class="fas fa-refresh me-2"></i>Clear Filters
+        </button>
+    </div>
+    
+    {% if not courses %}
+    <div class="text-center py-5">
+        <i class="fas fa-book-open fa-4x text-muted mb-3"></i>
+        <h3>No courses available</h3>
+        <p class="text-muted">Please check back later for new courses.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+}
+
+.enroll-btn {
+    transition: all 0.3s ease;
+}
+
+.enroll-btn:hover {
+    transform: scale(1.05);
+}
+
+.course-card {
+    transition: all 0.3s ease;
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('courseSearch');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const coursesContainer = document.getElementById('coursesContainer');
+    const noResults = document.getElementById('noResults');
+    
+    function filterCourses() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedCategory = categoryFilter.value.toLowerCase();
+        const courseCards = document.querySelectorAll('.course-card');
+        let visibleCount = 0;
+        
+        courseCards.forEach(card => {
+            const courseName = card.getAttribute('data-course-name');
+            const courseDescription = card.getAttribute('data-course-description');
+            
+            const matchesSearch = courseName.includes(searchTerm) || courseDescription.includes(searchTerm);
+            const matchesCategory = !selectedCategory || courseName.includes(selectedCategory) || courseDescription.includes(selectedCategory);
+            
+            if (matchesSearch && matchesCategory) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Show/hide no results message
+        if (visibleCount === 0) {
+            coursesContainer.style.display = 'none';
+            noResults.style.display = 'block';
+        } else {
+            coursesContainer.style.display = 'flex';
+            noResults.style.display = 'none';
+        }
+    }
+    
+    searchInput.addEventListener('input', filterCourses);
+    categoryFilter.addEventListener('change', filterCourses);
+    
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+function clearFilters() {
+    document.getElementById('courseSearch').value = '';
+    document.getElementById('categoryFilter').value = '';
+    
+    // Show all courses
+    document.querySelectorAll('.course-card').forEach(card => {
+        card.style.display = 'block';
+    });
+    
+    document.getElementById('coursesContainer').style.display = 'flex';
+    document.getElementById('noResults').style.display = 'none';
+}
+</script>
+{% endblock %}

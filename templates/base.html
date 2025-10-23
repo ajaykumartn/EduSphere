@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduSphere - Complete Learning Platform{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}?v={{ range(1000, 9999) | random }}" rel="stylesheet">
+</head>
+<body>
+    {% set is_auth_page = request.endpoint in ['login', 'register'] %}
+    
+    {% if not is_auth_page %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                <i class="fas fa-graduation-cap me-2"></i>EduSphere
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('courses') }}">
+                                <i class="fas fa-book me-1"></i>Courses
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('test_series') }}">
+                                <i class="fas fa-clipboard-check me-1"></i>Test Series
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('live_classes') }}">
+                                <i class="fas fa-video me-1"></i>Live Classes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('ai_chat_page') }}">
+                                <i class="fas fa-robot me-1"></i>AI Chat
+                            </a>
+                        </li>
+                        {% if current_user.role == 'faculty' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('flux_teacher') }}">
+                                <i class="fas fa-bolt me-1"></i>FLUX Classroom
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav ms-auto">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'admin' %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-shield-alt me-1"></i>Admin Panel
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_users') }}">
+                                    <i class="fas fa-users me-2"></i>Manage Users
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_manage_courses') }}">
+                                    <i class="fas fa-book me-2"></i>Manage Courses
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_analytics') }}">
+                                    <i class="fas fa-chart-bar me-2"></i>Analytics
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_system_settings') }}">
+                                    <i class="fas fa-cog me-2"></i>System Settings
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-warning" href="#" onclick="createBackup()">
+                                    <i class="fas fa-database me-2"></i>Create Backup
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% elif current_user.role == 'faculty' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('faculty_dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('student_dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
+                    </li>
+                {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% if is_auth_page %}
+                <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+                    {% for message in messages %}
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="container-fluid">
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            {% for message in messages %}
+                                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Real-time Notifications -->
+    <div id="notificationContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 9999; margin-top: 70px;">
+        <!-- Notifications will be inserted here -->
+    </div>
+
+    <!-- Real-time Activity Feed -->
+    <div id="activityFeed" class="position-fixed bottom-0 start-0 bg-white border rounded-top shadow-lg" 
+         style="width: 350px; max-height: 400px; z-index: 1000; transform: translateY(100%); transition: transform 0.3s ease;">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-primary text-white rounded-top">
+            <h6 class="mb-0"><i class="fas fa-bell me-2"></i>Live Activity</h6>
+            <button class="btn btn-sm btn-outline-light" onclick="toggleActivityFeed()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="activityList" class="p-3" style="max-height: 300px; overflow-y: auto;">
+            <!-- Activity items will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Floating Action Menu -->
+    <div class="floating-action-menu position-fixed bottom-0 end-0 p-4" style="z-index: 1001;">
+        <div class="fab-menu">
+            <button class="fab-main btn btn-primary rounded-circle shadow-lg" onclick="toggleFabMenu()">
+                <i class="fas fa-plus fa-lg"></i>
+            </button>
+            <div class="fab-options" style="display: none;">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'student' %}
+                        <button class="fab-option btn btn-success rounded-circle shadow mb-2" 
+                                data-bs-toggle="modal" data-bs-target="#quickNoteModal" title="Quick Note">
+                            <i class="fas fa-sticky-note"></i>
+                        </button>
+                        <button class="fab-option btn btn-info rounded-circle shadow mb-2" 
+                                onclick="startStudyTimer()" title="Study Timer">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                    {% elif current_user.role == 'faculty' %}
+                        <button class="fab-option btn btn-warning rounded-circle shadow mb-2" 
+                                data-bs-toggle="modal" data-bs-target="#quickAnnouncementModal" title="Quick Announcement">
+                            <i class="fas fa-bullhorn"></i>
+                        </button>
+                        <button class="fab-option btn btn-success rounded-circle shadow mb-2" 
+                                onclick="createInstantPoll()" title="Instant Poll">
+                            <i class="fas fa-poll"></i>
+                        </button>
+                    {% elif current_user.role == 'admin' %}
+                        <button class="fab-option btn btn-danger rounded-circle shadow mb-2" 
+                                onclick="showSystemStatus()" title="System Status">
+                            <i class="fas fa-server"></i>
+                        </button>
+                        <button class="fab-option btn btn-warning rounded-circle shadow mb-2" 
+                                onclick="broadcastMessage()" title="Broadcast Message">
+                            <i class="fas fa-broadcast-tower"></i>
+                        </button>
+                    {% endif %}
+                {% endif %}
+                <button class="fab-option btn btn-secondary rounded-circle shadow mb-2" 
+                        onclick="toggleActivityFeed()" title="Activity Feed">
+                    <i class="fas fa-bell"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Single content block -->
+    {% block content %}{% endblock %}
+
+    <!-- Quick Note Modal -->
+    <div class="modal fade" id="quickNoteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-sticky-note me-2"></i>Quick Note</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="quickNoteForm">
+                        <div class="mb-3">
+                            <label class="form-label">Note Title</label>
+                            <input type="text" class="form-control" id="noteTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Content</label>
+                            <textarea class="form-control" id="noteContent" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="noteCategory">
+                                <option value="general">General</option>
+                                <option value="study">Study</option>
+                                <option value="reminder">Reminder</option>
+                                <option value="important">Important</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="saveQuickNote()">Save Note</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Announcement Modal -->
+    <div class="modal fade" id="quickAnnouncementModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-bullhorn me-2"></i>Quick Announcement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="quickAnnouncementForm">
+                        <div class="mb-3">
+                            <label class="form-label">Announcement Title</label>
+                            <input type="text" class="form-control" id="announcementTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-control" id="announcementContent" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Priority</label>
+                            <select class="form-select" id="announcementPriority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Target Audience</label>
+                            <select class="form-select" id="announcementTarget">
+                                <option value="all">All Students</option>
+                                <option value="course">Specific Course</option>
+                                <option value="class">Specific Class</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" onclick="sendAnnouncement()">Send Announcement</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Timer Modal -->
+    <div class="modal fade" id="studyTimerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-clock me-2"></i>Study Timer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="timer-display mb-4">
+                        <div class="display-1 fw-bold text-primary" id="timerDisplay">25:00</div>
+                        <p class="text-muted">Focus Session</p>
+                    </div>
+                    <div class="timer-controls mb-3">
+                        <button class="btn btn-success me-2" onclick="startTimer()">
+                            <i class="fas fa-play me-1"></i>Start
+                        </button>
+                        <button class="btn btn-warning me-2" onclick="pauseTimer()">
+                            <i class="fas fa-pause me-1"></i>Pause
+                        </button>
+                        <button class="btn btn-danger" onclick="resetTimer()">
+                            <i class="fas fa-stop me-1"></i>Reset
+                        </button>
+                    </div>
+                    <div class="timer-presets">
+                        <button class="btn btn-outline-primary btn-sm me-2" onclick="setTimer(25)">25 min</button>
+                        <button class="btn btn-outline-primary btn-sm me-2" onclick="setTimer(45)">45 min</button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="setTimer(60)">60 min</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- Real-time Features JavaScript -->
+    <script>
+        // Global variables for real-time features
+        let activityFeedOpen = false;
+        let fabMenuOpen = false;
+        let studyTimer = null;
+        let timerMinutes = 25;
+        let timerSeconds = 0;
+        let timerRunning = false;
+
+        // Real-time notification system
+        function showNotification(title, message, type = 'info', duration = 5000) {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show shadow-sm`;
+            notification.innerHTML = `
+                <strong>${title}</strong><br>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, duration);
+        }
+
+        // Activity feed functionality
+        function toggleActivityFeed() {
+            const feed = document.getElementById('activityFeed');
+            activityFeedOpen = !activityFeedOpen;
+            
+            if (activityFeedOpen) {
+                feed.style.transform = 'translateY(0)';
+                loadActivityFeed();
+            } else {
+                feed.style.transform = 'translateY(100%)';
+            }
+        }
+
+        function loadActivityFeed() {
+            const activityList = document.getElementById('activityList');
+            const activities = JSON.parse(localStorage.getItem('realtimeActivities')) || [];
+            
+            if (activities.length === 0) {
+                activityList.innerHTML = `
+                    <div class="text-center text-muted">
+                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                        <p class="small mb-0">No recent activity</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            activities.slice(-10).reverse().forEach(activity => {
+                const timeAgo = getTimeAgo(new Date(activity.timestamp));
+                html += `
+                    <div class="activity-item border-bottom pb-2 mb-2">
+                        <div class="d-flex align-items-start">
+                            <div class="activity-icon me-2">
+                                <i class="${activity.icon} text-${activity.color}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="small fw-bold">${activity.title}</div>
+                                <div class="small text-muted">${activity.message}</div>
+                                <div class="small text-muted">${timeAgo}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            activityList.innerHTML = html;
+        }
+
+        function addActivity(title, message, icon = 'fas fa-info-circle', color = 'primary') {
+            const activities = JSON.parse(localStorage.getItem('realtimeActivities')) || [];
+            activities.push({
+                id: Date.now(),
+                title,
+                message,
+                icon,
+                color,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Keep only last 50 activities
+            if (activities.length > 50) {
+                activities.splice(0, activities.length - 50);
+            }
+            
+            localStorage.setItem('realtimeActivities', JSON.stringify(activities));
+            
+            if (activityFeedOpen) {
+                loadActivityFeed();
+            }
+        }
+
+        // Floating Action Button functionality
+        function toggleFabMenu() {
+            const options = document.querySelector('.fab-options');
+            const mainBtn = document.querySelector('.fab-main i');
+            
+            fabMenuOpen = !fabMenuOpen;
+            
+            if (fabMenuOpen) {
+                options.style.display = 'block';
+                mainBtn.className = 'fas fa-times fa-lg';
+                
+                // Animate options
+                const optionBtns = options.querySelectorAll('.fab-option');
+                optionBtns.forEach((btn, index) => {
+                    setTimeout(() => {
+                        btn.style.transform = 'scale(1)';
+                        btn.style.opacity = '1';
+                    }, index * 100);
+                });
+            } else {
+                options.style.display = 'none';
+                mainBtn.className = 'fas fa-plus fa-lg';
+            }
+        }
+
+        // Quick Note functionality
+        function saveQuickNote() {
+            const title = document.getElementById('noteTitle').value;
+            const content = document.getElementById('noteContent').value;
+            const category = document.getElementById('noteCategory').value;
+            
+            if (!title || !content) {
+                showNotification('Error', 'Please fill in all fields', 'danger');
+                return;
+            }
+            
+            const notes = JSON.parse(localStorage.getItem('quickNotes')) || [];
+            notes.push({
+                id: Date.now(),
+                title,
+                content,
+                category,
+                timestamp: new Date().toISOString()
+            });
+            
+            localStorage.setItem('quickNotes', JSON.stringify(notes));
+            
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('quickNoteModal'));
+            modal.hide();
+            document.getElementById('quickNoteForm').reset();
+            
+            showNotification('Success', 'Note saved successfully!', 'success');
+            addActivity('Note Created', `"${title}" - ${category}`, 'fas fa-sticky-note', 'success');
+        }
+
+        // Study Timer functionality
+        function startStudyTimer() {
+            const modal = new bootstrap.Modal(document.getElementById('studyTimerModal'));
+            modal.show();
+        }
+
+        function startTimer() {
+            if (!timerRunning) {
+                timerRunning = true;
+                studyTimer = setInterval(updateTimer, 1000);
+                showNotification('Timer Started', `Focus session for ${timerMinutes} minutes`, 'info');
+                addActivity('Study Session Started', `${timerMinutes} minute focus session`, 'fas fa-clock', 'info');
+            }
+        }
+
+        function pauseTimer() {
+            if (timerRunning) {
+                timerRunning = false;
+                clearInterval(studyTimer);
+                showNotification('Timer Paused', 'Take a break when needed', 'warning');
+            }
+        }
+
+        function resetTimer() {
+            timerRunning = false;
+            clearInterval(studyTimer);
+            timerSeconds = 0;
+            updateTimerDisplay();
+        }
+
+        function setTimer(minutes) {
+            timerMinutes = minutes;
+            timerSeconds = 0;
+            updateTimerDisplay();
+        }
+
+        function updateTimer() {
+            if (timerSeconds === 0) {
+                if (timerMinutes === 0) {
+                    // Timer finished
+                    timerRunning = false;
+                    clearInterval(studyTimer);
+                    showNotification('Session Complete!', 'Great job! Take a well-deserved break.', 'success');
+                    addActivity('Study Session Completed', `Completed ${document.getElementById('timerDisplay').textContent} focus session`, 'fas fa-check-circle', 'success');
+                    
+                    // Play notification sound (if supported)
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification('Study Session Complete!', {
+                            body: 'Great job! Time for a break.',
+                            icon: '/static/favicon.ico'
+                        });
+                    }
+                    return;
+                }
+                timerMinutes--;
+                timerSeconds = 59;
+            } else {
+                timerSeconds--;
+            }
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timerDisplay');
+            if (display) {
+                display.textContent = `${timerMinutes.toString().padStart(2, '0')}:${timerSeconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Announcement functionality
+        function sendAnnouncement() {
+            const title = document.getElementById('announcementTitle').value;
+            const content = document.getElementById('announcementContent').value;
+            const priority = document.getElementById('announcementPriority').value;
+            const target = document.getElementById('announcementTarget').value;
+            
+            if (!title || !content) {
+                showNotification('Error', 'Please fill in all fields', 'danger');
+                return;
+            }
+            
+            // Simulate sending announcement
+            const modal = bootstrap.Modal.getInstance(document.getElementById('quickAnnouncementModal'));
+            modal.hide();
+            document.getElementById('quickAnnouncementForm').reset();
+            
+            showNotification('Announcement Sent', `"${title}" sent to ${target}`, 'success');
+            addActivity('Announcement Sent', `${title} - ${priority} priority`, 'fas fa-bullhorn', 'warning');
+        }
+
+        // System status for admin
+        function showSystemStatus() {
+            const status = {
+                server: 'Online',
+                database: 'Healthy',
+                users: Math.floor(Math.random() * 500) + 100,
+                sessions: Math.floor(Math.random() * 50) + 10
+            };
+            
+            showNotification('System Status', 
+                `Server: ${status.server} | DB: ${status.database} | Users: ${status.users} | Sessions: ${status.sessions}`, 
+                'info', 8000);
+        }
+
+        // Utility functions
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        // Initialize real-time features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Request notification permission
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+            
+            // Add welcome activity
+            {% if current_user.is_authenticated %}
+                addActivity('Welcome Back', 'You\'re now online and ready to learn!', 'fas fa-user-check', 'success');
+            {% endif %}
+            
+            // Simulate real-time updates every 30 seconds
+            setInterval(() => {
+                const activities = [
+                    { title: 'New Quiz Available', message: 'Mathematics Quiz #5 is now live', icon: 'fas fa-clipboard-check', color: 'primary' },
+                    { title: 'Live Class Starting', message: 'Physics class starts in 5 minutes', icon: 'fas fa-video', color: 'warning' },
+                    { title: 'Assignment Due', message: 'Chemistry assignment due tomorrow', icon: 'fas fa-exclamation-triangle', color: 'danger' },
+                    { title: 'New Announcement', message: 'Check the latest updates from faculty', icon: 'fas fa-bullhorn', color: 'info' }
+                ];
+                
+                if (Math.random() < 0.3) { // 30% chance every 30 seconds
+                    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+                    addActivity(randomActivity.title, randomActivity.message, randomActivity.icon, randomActivity.color);
+                }
+            }, 30000);
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

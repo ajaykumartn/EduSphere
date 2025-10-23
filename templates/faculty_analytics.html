@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Analytics - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="fw-bold mb-1">Teaching Analytics</h2>
+                            <p class="mb-0 opacity-75">Comprehensive overview of your teaching performance</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-light text-info fs-6 px-3 py-2">
+                                <i class="fas fa-chart-line me-1"></i>Analytics Dashboard
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overall Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Sessions</h6>
+                            <h2 class="mb-0">{{ overall_stats[0] or 0 }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chalkboard fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Students Taught</h6>
+                            <h2 class="mb-0">{{ overall_stats[1] or 0 }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Responses</h6>
+                            <h2 class="mb-0">{{ overall_stats[2] or 0 }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-comments fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Avg. Accuracy</h6>
+                            <h2 class="mb-0">{{ "%.1f"|format(overall_stats[3] or 0) }}%</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-bullseye fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quiz Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-question-circle fa-3x text-primary mb-2"></i>
+                    <h3 class="text-primary">{{ quiz_stats[0] or 0 }}</h3>
+                    <p class="text-muted mb-0">Total Quizzes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-play-circle fa-3x text-success mb-2"></i>
+                    <h3 class="text-success">{{ quiz_stats[1] or 0 }}</h3>
+                    <p class="text-muted mb-0">Active Quizzes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-graduate fa-3x text-warning mb-2"></i>
+                    <h3 class="text-warning">{{ quiz_stats[2] or 0 }}</h3>
+                    <p class="text-muted mb-0">Quiz Participants</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-star fa-3x text-info mb-2"></i>
+                    <h3 class="text-info">{{ "%.1f"|format(quiz_stats[3] or 0) }}</h3>
+                    <p class="text-muted mb-0">Avg. Quiz Score</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Monthly Activity -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Monthly Activity Trend
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if monthly_activity %}
+                        <canvas id="monthlyActivityChart" width="400" height="200"></canvas>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5>No activity data available</h5>
+                            <p class="text-muted">Start creating sessions to see activity trends</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Students -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>Top Performing Students
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if top_students %}
+                        {% for student in top_students %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rank-badge rank-{{ loop.index if loop.index <= 3 else 'other' }} me-3">
+                                {{ loop.index }}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">{{ student[0] }}</div>
+                                <div class="small text-muted">
+                                    Sessions: {{ student[1] }} | 
+                                    Avg Score: {{ "%.1f"|format(student[2] or 0) }}
+                                </div>
+                                <div class="progress mt-1" style="height: 4px;">
+                                    <div class="progress-bar bg-success" 
+                                         style="width: {{ student[4] or 0 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-trophy fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No student data yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Analytics -->
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Session vs Quiz Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="activityComparisonChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Performance Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Session Engagement</span>
+                            <span class="fw-bold">{{ "%.1f"|format((overall_stats[1] / overall_stats[0] * 100) if overall_stats[0] > 0 else 0) }}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" 
+                                 style="width: {{ (overall_stats[1] / overall_stats[0] * 100) if overall_stats[0] > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Quiz Participation</span>
+                            <span class="fw-bold">{{ "%.1f"|format((quiz_stats[2] / quiz_stats[0] * 100) if quiz_stats[0] > 0 else 0) }}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" 
+                                 style="width: {{ (quiz_stats[2] / quiz_stats[0] * 100) if quiz_stats[0] > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Overall Accuracy</span>
+                            <span class="fw-bold">{{ "%.1f"|format(overall_stats[3] or 0) }}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" 
+                                 style="width: {{ overall_stats[3] or 0 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <h4 class="text-info">{{ "%.1f"|format(((overall_stats[3] or 0) + (quiz_stats[3] or 0)) / 2) }}</h4>
+                        <small class="text-muted">Overall Teaching Score</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if monthly_activity %}
+// Monthly Activity Chart
+const monthlyCtx = document.getElementById('monthlyActivityChart').getContext('2d');
+const monthlyChart = new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for activity in monthly_activity %}'{{ activity[0] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Sessions Created',
+            data: [{% for activity in monthly_activity %}{{ activity[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Unique Participants',
+            data: [{% for activity in monthly_activity %}{{ activity[2] }}{% if not loop.last %},{% endif %}{% endfor %}],
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+{% endif %}
+
+// Activity Comparison Chart
+const comparisonCtx = document.getElementById('activityComparisonChart').getContext('2d');
+const comparisonChart = new Chart(comparisonCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['FLUX Sessions', 'Quiz Activities', 'Student Responses'],
+        datasets: [{
+            data: [{{ overall_stats[0] or 0 }}, {{ quiz_stats[0] or 0 }}, {{ overall_stats[2] or 0 }}],
+            backgroundColor: ['#007bff', '#28a745', '#ffc107'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

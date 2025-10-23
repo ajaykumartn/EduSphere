@@ -1,0 +1,523 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard - FLUX Classroom{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="fw-bold">
+                        <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>
+                        Teacher Dashboard
+                    </h1>
+                    <p class="text-muted mb-0">Welcome, {{ current_user.username }}! Manage your FLUX sessions</p>
+                </div>
+                <button id="createSessionBtn" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create New Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Session Panel -->
+    <div id="activeSessionPanel" class="row mb-4 d-none">
+        <div class="col-12">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-broadcast-tower me-2"></i>Active Session
+                        </h5>
+                        <button id="endSessionBtn" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-stop me-1"></i>End Session
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Session Code:</label>
+                                <div class="input-group">
+                                    <input type="text" id="sessionCodeDisplay" class="form-control form-control-lg text-center fw-bold" readonly>
+                                    <button class="btn btn-outline-secondary" onclick="copySessionCode()">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Join Link:</label>
+                                <div class="input-group">
+                                    <input type="text" id="joinLinkDisplay" class="form-control" readonly>
+                                    <button class="btn btn-outline-secondary" onclick="copyJoinLink()">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <div class="stat-number text-success" id="participantCount">0</div>
+                                <div class="stat-label">Active Participants</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Control Panel -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bullhorn me-2"></i>Live Prompts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <textarea id="promptText" class="form-control" rows="4" 
+                                  placeholder="Type your message, question, or announcement here..."></textarea>
+                    </div>
+                    <button id="sendPromptBtn" class="btn btn-primary w-100" disabled>
+                        <i class="fas fa-paper-plane me-2"></i>Send to All Students
+                    </button>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Quiz Launcher
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Question:</label>
+                        <input type="text" id="quizQuestion" class="form-control" 
+                               placeholder="Enter your quiz question">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Option A:</label>
+                            <input type="text" id="optionA" class="form-control" placeholder="Option A">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Option B:</label>
+                            <input type="text" id="optionB" class="form-control" placeholder="Option B">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Option C:</label>
+                            <input type="text" id="optionC" class="form-control" placeholder="Option C">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Option D:</label>
+                            <input type="text" id="optionD" class="form-control" placeholder="Option D">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Correct Answer:</label>
+                            <select id="correctAnswer" class="form-select">
+                                <option value="">Select correct answer</option>
+                                <option value="0">A</option>
+                                <option value="1">B</option>
+                                <option value="2">C</option>
+                                <option value="3">D</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Timer (seconds):</label>
+                            <input type="number" id="quizTimer" class="form-control" value="30" min="10" max="300">
+                        </div>
+                    </div>
+                    <button id="launchQuizBtn" class="btn btn-warning w-100" disabled>
+                        <i class="fas fa-rocket me-2"></i>Launch Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Panel -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Live Response Analytics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="responseChart" width="400" height="200"></canvas>
+                    <div id="noResponsesMsg" class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Launch a quiz to see response analytics</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>Live Leaderboard
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="leaderboardContainer">
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Waiting for students to join...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Session Modal -->
+<div class="modal fade" id="createSessionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New FLUX Session</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Session Title:</label>
+                    <input type="text" id="sessionTitle" class="form-control" 
+                           placeholder="Enter session title" value="FLUX Session">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmCreateSession" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Session
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let activeSessionId = null;
+let pollInterval = null;
+let responseChart = null;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEventListeners();
+    checkActiveSession();
+});
+
+function initializeEventListeners() {
+    document.getElementById('createSessionBtn').addEventListener('click', showCreateSessionModal);
+    document.getElementById('confirmCreateSession').addEventListener('click', createSession);
+    document.getElementById('sendPromptBtn').addEventListener('click', sendPrompt);
+    document.getElementById('launchQuizBtn').addEventListener('click', launchQuiz);
+    document.getElementById('endSessionBtn').addEventListener('click', endSession);
+    
+    // Enable/disable buttons based on input
+    document.getElementById('promptText').addEventListener('input', function() {
+        document.getElementById('sendPromptBtn').disabled = !this.value.trim();
+    });
+    
+    // Quiz form validation
+    const quizInputs = ['quizQuestion', 'optionA', 'optionB', 'optionC', 'optionD', 'correctAnswer'];
+    quizInputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', validateQuizForm);
+    });
+}
+
+function showCreateSessionModal() {
+    const modal = new bootstrap.Modal(document.getElementById('createSessionModal'));
+    modal.show();
+}
+
+function createSession() {
+    const title = document.getElementById('sessionTitle').value.trim() || 'FLUX Session';
+    
+    fetch('/flux-teacher/create-session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `title=${encodeURIComponent(title)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            activeSessionId = data.session_id;
+            showActiveSession(data.session_code, data.join_link);
+            startPolling();
+            bootstrap.Modal.getInstance(document.getElementById('createSessionModal')).hide();
+        }
+    })
+    .catch(error => console.error('Error creating session:', error));
+}
+
+function showActiveSession(sessionCode, joinLink) {
+    document.getElementById('sessionCodeDisplay').value = sessionCode;
+    document.getElementById('joinLinkDisplay').value = window.location.origin + joinLink;
+    document.getElementById('activeSessionPanel').classList.remove('d-none');
+    document.getElementById('createSessionBtn').disabled = true;
+}
+
+function sendPrompt() {
+    const prompt = document.getElementById('promptText').value.trim();
+    if (!prompt) return;
+    
+    fetch('/api/flux/send-prompt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: prompt })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('promptText').value = '';
+            document.getElementById('sendPromptBtn').disabled = true;
+            showAlert('Prompt sent to all students!', 'success');
+        }
+    })
+    .catch(error => console.error('Error sending prompt:', error));
+}
+
+function launchQuiz() {
+    const quizData = {
+        question: document.getElementById('quizQuestion').value.trim(),
+        options: [
+            document.getElementById('optionA').value.trim(),
+            document.getElementById('optionB').value.trim(),
+            document.getElementById('optionC').value.trim(),
+            document.getElementById('optionD').value.trim()
+        ],
+        correct_answer: document.getElementById('correctAnswer').value,
+        timer: parseInt(document.getElementById('quizTimer').value),
+        quiz_id: Date.now()
+    };
+    
+    fetch('/api/flux/send-quiz', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quizData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            clearQuizForm();
+            showAlert('Quiz launched to all students!', 'warning');
+        }
+    })
+    .catch(error => console.error('Error launching quiz:', error));
+}
+
+function validateQuizForm() {
+    const question = document.getElementById('quizQuestion').value.trim();
+    const optionA = document.getElementById('optionA').value.trim();
+    const optionB = document.getElementById('optionB').value.trim();
+    const optionC = document.getElementById('optionC').value.trim();
+    const optionD = document.getElementById('optionD').value.trim();
+    const correctAnswer = document.getElementById('correctAnswer').value;
+    
+    const isValid = question && optionA && optionB && optionC && optionD && correctAnswer !== '';
+    document.getElementById('launchQuizBtn').disabled = !isValid;
+}
+
+function clearQuizForm() {
+    document.getElementById('quizQuestion').value = '';
+    document.getElementById('optionA').value = '';
+    document.getElementById('optionB').value = '';
+    document.getElementById('optionC').value = '';
+    document.getElementById('optionD').value = '';
+    document.getElementById('correctAnswer').value = '';
+    document.getElementById('launchQuizBtn').disabled = true;
+}
+
+function startPolling() {
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(pollForUpdates, 2000);
+    pollForUpdates();
+}
+
+function pollForUpdates() {
+    fetch('/api/flux/teacher-poll')
+        .then(response => response.json())
+        .then(data => {
+            if (data.active) {
+                updateParticipantCount(data.participant_count);
+                updateLeaderboard(data.leaderboard);
+                updateResponseChart(data.responses);
+            }
+        })
+        .catch(error => console.error('Polling error:', error));
+}
+
+function updateParticipantCount(count) {
+    document.getElementById('participantCount').textContent = count;
+}
+
+function updateLeaderboard(leaderboard) {
+    const container = document.getElementById('leaderboardContainer');
+    
+    if (leaderboard.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Waiting for students to join...</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    leaderboard.forEach((item, index) => {
+        const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
+        html += `
+            <div class="leaderboard-item">
+                <div class="rank-badge ${rankClass}">${index + 1}</div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold">${item[0]}</div>
+                    <small class="text-muted">${item[1]} points</small>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function updateResponseChart(responses) {
+    const ctx = document.getElementById('responseChart').getContext('2d');
+    
+    if (responses.length === 0) {
+        if (responseChart) {
+            responseChart.destroy();
+            responseChart = null;
+        }
+        document.getElementById('noResponsesMsg').style.display = 'block';
+        return;
+    }
+    
+    document.getElementById('noResponsesMsg').style.display = 'none';
+    
+    // Process response data
+    const labels = ['A', 'B', 'C', 'D'];
+    const data = [0, 0, 0, 0];
+    const colors = ['#dc3545', '#dc3545', '#dc3545', '#dc3545'];
+    
+    responses.forEach(response => {
+        const optionIndex = parseInt(response[0]);
+        if (optionIndex >= 0 && optionIndex < 4) {
+            data[optionIndex] = response[1];
+            if (response[2]) { // is_correct
+                colors[optionIndex] = '#28a745';
+            }
+        }
+    });
+    
+    if (responseChart) {
+        responseChart.destroy();
+    }
+    
+    responseChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Responses',
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+function copySessionCode() {
+    const sessionCode = document.getElementById('sessionCodeDisplay');
+    sessionCode.select();
+    document.execCommand('copy');
+    showAlert('Session code copied!', 'info');
+}
+
+function copyJoinLink() {
+    const joinLink = document.getElementById('joinLinkDisplay');
+    joinLink.select();
+    document.execCommand('copy');
+    showAlert('Join link copied!', 'info');
+}
+
+function endSession() {
+    if (confirm('Are you sure you want to end this session?')) {
+        // Implementation for ending session
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+        document.getElementById('activeSessionPanel').classList.add('d-none');
+        document.getElementById('createSessionBtn').disabled = false;
+        showAlert('Session ended', 'info');
+    }
+}
+
+function checkActiveSession() {
+    // Check if teacher has an active session on page load
+    fetch('/api/flux/teacher-poll')
+        .then(response => response.json())
+        .then(data => {
+            if (data.active) {
+                // Show active session panel and start polling
+                startPolling();
+            }
+        })
+        .catch(error => console.error('Error checking active session:', error));
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.parentNode.removeChild(alertDiv);
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

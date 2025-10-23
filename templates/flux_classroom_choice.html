@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}FLUX Classroom - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="text-center mb-5">
+                <i class="fas fa-bolt fa-4x text-warning mb-3"></i>
+                <h1 class="display-4 fw-bold">FLUX Classroom</h1>
+                <p class="lead text-muted">Choose your role to enter the interactive learning environment</p>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Teacher Option -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-lg role-selection-card">
+                        <div class="card-body text-center p-5">
+                            <div class="role-icon bg-success text-white rounded-circle mx-auto mb-4">
+                                <i class="fas fa-chalkboard-teacher fa-3x"></i>
+                            </div>
+                            <h3 class="fw-bold mb-3">Teacher Mode</h3>
+                            <p class="text-muted mb-4">Create and manage interactive sessions, send live prompts, launch quizzes, and monitor student responses in real-time.</p>
+                            
+                            <div class="features-list text-start mb-4">
+                                <div class="feature-item mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Create FLUX sessions with unique codes
+                                </div>
+                                <div class="feature-item mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Send live prompts and announcements
+                                </div>
+                                <div class="feature-item mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Launch interactive quizzes with timers
+                                </div>
+                                <div class="feature-item mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    View real-time response analytics
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Monitor live leaderboards
+                                </div>
+                            </div>
+                            
+                            <a href="{{ url_for('flux_teacher') }}" class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>Enter as Teacher
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Student Option -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-lg role-selection-card">
+                        <div class="card-body text-center p-5">
+                            <div class="role-icon bg-primary text-white rounded-circle mx-auto mb-4">
+                                <i class="fas fa-user-graduate fa-3x"></i>
+                            </div>
+                            <h3 class="fw-bold mb-3">Student Mode</h3>
+                            <p class="text-muted mb-4">Join interactive sessions using session codes, participate in live quizzes, and compete with classmates on the leaderboard.</p>
+                            
+                            <div class="features-list text-start mb-4">
+                                <div class="feature-item mb-2">
+                                    <i class="fas fa-check text-primary me-2"></i>
+                                    Join sessions with unique codes
+                                </div>
+                                <div class="feature-item mb-2">
+                                    <i class="fas fa-check text-primary me-2"></i>
+                                    Receive live prompts and updates
+                                </div>
+                                <div class="feature-item mb-2">
+                                    <i class="fas fa-check text-primary me-2"></i>
+                                    Participate in timed quizzes
+                                </div>
+                                <div class="feature-item mb-2">
+                                    <i class="fas fa-check text-primary me-2"></i>
+                                    Compete on live leaderboards
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-check text-primary me-2"></i>
+                                    Track your performance
+                                </div>
+                            </div>
+                            
+                            <a href="{{ url_for('flux_student', session_code='demo') }}" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-user-graduate me-2"></i>Enter as Student
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Demo Session Info -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card bg-light border-0">
+                        <div class="card-body text-center p-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-info-circle text-info me-2"></i>Demo Mode Available
+                            </h5>
+                            <p class="mb-3">Experience FLUX Classroom with our interactive demo. Teachers can create sample sessions, and students can join using demo codes.</p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="demo-feature">
+                                        <i class="fas fa-play-circle text-success fa-2x mb-2"></i>
+                                        <div class="fw-bold">Instant Setup</div>
+                                        <small class="text-muted">No configuration required</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="demo-feature">
+                                        <i class="fas fa-users text-primary fa-2x mb-2"></i>
+                                        <div class="fw-bold">Multi-User Support</div>
+                                        <small class="text-muted">Test with multiple participants</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="demo-feature">
+                                        <i class="fas fa-chart-line text-warning fa-2x mb-2"></i>
+                                        <div class="fw-bold">Real-time Analytics</div>
+                                        <small class="text-muted">Live response tracking</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

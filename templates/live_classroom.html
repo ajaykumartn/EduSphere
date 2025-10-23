@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+
+{% block title %}{{ class_info[1] }} - Live Classroom{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0" style="height: 100vh;">
+    <!-- Top Bar -->
+    <div class="bg-dark text-white p-2">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <h6 class="mb-0">
+                    <i class="fas fa-video me-2"></i>{{ class_info[1] }}
+                </h6>
+                <small class="text-muted">{{ class_info[5] }}</small>
+            </div>
+            <div class="col-md-4 text-center">
+                <span class="badge bg-success me-2">
+                    <i class="fas fa-circle me-1"></i>Live
+                </span>
+                <span class="badge bg-info">
+                    Code: {{ class_info[2] }}
+                </span>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-sm btn-outline-light me-2" onclick="toggleParticipants()">
+                    <i class="fas fa-users me-1"></i>{{ participants|length }}
+                </button>
+                {% if is_faculty %}
+                <button class="btn btn-sm btn-danger" onclick="endClass()">
+                    <i class="fas fa-stop me-1"></i>End Class
+                </button>
+                {% else %}
+                <button class="btn btn-sm btn-warning" onclick="leaveClass()">
+                    <i class="fas fa-sign-out-alt me-1"></i>Leave
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-0" style="height: calc(100vh - 60px);">
+        <!-- Main Content Area -->
+        <div class="col-md-9">
+            <!-- Video/Presentation Area -->
+            <div class="bg-light border-bottom" style="height: 40%;">
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    {% if is_faculty %}
+                    <div class="text-center">
+                        <div id="videoContainer" class="mb-3">
+                            <video id="localVideo" width="400" height="300" autoplay muted 
+                                   style="border-radius: 10px; background: #000;"></video>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="startVideo()">
+                                <i class="fas fa-video me-1"></i>Start Camera
+                            </button>
+                            <button class="btn btn-success" onclick="shareScreen()">
+                                <i class="fas fa-desktop me-1"></i>Share Screen
+                            </button>
+                            <button class="btn btn-info" onclick="toggleMute()">
+                                <i class="fas fa-microphone me-1"></i>Mute/Unmute
+                            </button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center">
+                        <div id="remoteVideoContainer">
+                            <div class="bg-dark text-white d-flex align-items-center justify-content-center" 
+                                 style="width: 400px; height: 300px; border-radius: 10px;">
+                                <div>
+                                    <i class="fas fa-video fa-3x mb-2"></i>
+                                    <p>Waiting for teacher to start video...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Whiteboard Area -->
+            <div class="position-relative" style="height: 60%;">
+                <div class="position-absolute top-0 start-0 p-2 z-index-10">
+                    <div class="btn-group-vertical">
+                        <button class="btn btn-sm btn-outline-dark" onclick="setTool('pen')" 
+                                id="penTool" title="Pen">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-dark" onclick="setTool('eraser')" 
+                                id="eraserTool" title="Eraser">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-dark" onclick="setTool('text')" 
+                                id="textTool" title="Text">
+                            <i class="fas fa-font"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-dark" onclick="clearWhiteboard()" 
+                                title="Clear All">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="position-absolute top-0 end-0 p-2 z-index-10">
+                    <div class="btn-group">
+                        <input type="color" id="colorPicker" value="#000000" 
+                               class="btn btn-sm" style="width: 40px; height: 32px;">
+                        <input type="range" id="brushSize" min="1" max="20" value="3" 
+                               class="form-range" style="width: 100px;">
+                    </div>
+                </div>
+                
+                <canvas id="whiteboard" class="border" 
+                        style="width: 100%; height: 100%; cursor: crosshair;"></canvas>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-md-3 border-start bg-light">
+            <!-- Participants Panel -->
+            <div id="participantsPanel" class="h-100">
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Participants ({{ participants|length }})
+                    </h6>
+                </div>
+                <div class="p-2" style="height: calc(100% - 60px); overflow-y: auto;">
+                    <!-- Faculty -->
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center p-2 bg-primary text-white rounded">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">{{ class_info[6] }}</div>
+                                <small>Faculty</small>
+                            </div>
+                            <i class="fas fa-crown text-warning"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Students -->
+                    {% for participant in participants %}
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center p-2 bg-white border rounded">
+                            <i class="fas fa-user-graduate me-2 text-success"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">{{ participant[0] }}</div>
+                                <small class="text-muted">{{ participant[1] }}</small>
+                            </div>
+                            {% if participant[3] %}
+                            <span class="badge bg-success">Online</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Offline</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Chat Panel (Hidden by default) -->
+            <div id="chatPanel" class="h-100 d-none">
+                <div class="p-3 border-bottom">
+                    <h6 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Class Chat
+                    </h6>
+                </div>
+                <div id="chatMessages" class="p-2" style="height: calc(100% - 120px); overflow-y: auto;">
+                    <!-- Chat messages will appear here -->
+                </div>
+                <div class="p-2 border-top">
+                    <div class="input-group">
+                        <input type="text" id="chatInput" class="form-control" 
+                               placeholder="Type a message...">
+                        <button class="btn btn-primary" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Toolbar -->
+<div class="position-fixed bottom-0 start-50 translate-middle-x bg-dark text-white p-2 rounded-top">
+    <div class="btn-group">
+        <button class="btn btn-sm btn-outline-light" onclick="togglePanel('participants')" 
+                id="participantsBtn">
+            <i class="fas fa-users me-1"></i>Participants
+        </button>
+        <button class="btn btn-sm btn-outline-light" onclick="togglePanel('chat')" 
+                id="chatBtn">
+            <i class="fas fa-comments me-1"></i>Chat
+        </button>
+        {% if is_faculty %}
+        <button class="btn btn-sm btn-outline-light" onclick="toggleRecording()">
+            <i class="fas fa-record-vinyl me-1"></i>Record
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let canvas, ctx;
+let isDrawing = false;
+let currentTool = 'pen';
+let currentColor = '#000000';
+let currentSize = 3;
+let classId = {{ class_info[0] }};
+let isFaculty = {{ 'true' if is_faculty else 'false' }};
+
+// Initialize whiteboard
+document.addEventListener('DOMContentLoaded', function() {
+    canvas = document.getElementById('whiteboard');
+    ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Load existing whiteboard data
+    loadWhiteboardData();
+    
+    // Set up drawing events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    // Touch events for mobile
+    canvas.addEventListener('touchstart', handleTouch);
+    canvas.addEventListener('touchmove', handleTouch);
+    canvas.addEventListener('touchend', stopDrawing);
+    
+    // Tool event listeners
+    document.getElementById('colorPicker').addEventListener('change', function(e) {
+        currentColor = e.target.value;
+    });
+    
+    document.getElementById('brushSize').addEventListener('input', function(e) {
+        currentSize = e.target.value;
+    });
+    
+    // Set initial tool
+    setTool('pen');
+});
+
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+}
+
+function setTool(tool) {
+    currentTool = tool;
+    
+    // Update button states
+    document.querySelectorAll('.btn-group-vertical .btn').forEach(btn => {
+        btn.classList.remove('btn-dark');
+        btn.classList.add('btn-outline-dark');
+    });
+    
+    document.getElementById(tool + 'Tool').classList.remove('btn-outline-dark');
+    document.getElementById(tool + 'Tool').classList.add('btn-dark');
+    
+    // Update cursor
+    if (tool === 'pen') {
+        canvas.style.cursor = 'crosshair';
+    } else if (tool === 'eraser') {
+        canvas.style.cursor = 'grab';
+    } else if (tool === 'text') {
+        canvas.style.cursor = 'text';
+    }
+}
+
+function startDrawing(e) {
+    if (currentTool === 'text') {
+        addText(e);
+        return;
+    }
+    
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    ctx.lineWidth = currentSize;
+    ctx.lineCap = 'round';
+    
+    if (currentTool === 'pen') {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+    } else if (currentTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+    }
+    
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function stopDrawing() {
+    if (isDrawing) {
+        isDrawing = false;
+        saveWhiteboardAction();
+    }
+}
+
+function handleTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                     e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
+}
+
+function addText(e) {
+    const text = prompt('Enter text:');
+    if (text) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        ctx.font = `${currentSize * 5}px Arial`;
+        ctx.fillStyle = currentColor;
+        ctx.fillText(text, x, y);
+        
+        saveWhiteboardAction();
+    }
+}
+
+function clearWhiteboard() {
+    if (confirm('Are you sure you want to clear the whiteboard?')) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        saveWhiteboardAction();
+    }
+}
+
+function saveWhiteboardAction() {
+    const imageData = canvas.toDataURL();
+    
+    fetch('/api/whiteboard-action', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            class_id: classId,
+            action_type: 'draw',
+            action_data: {
+                imageData: imageData,
+                timestamp: Date.now()
+            }
+        })
+    })
+    .catch(error => console.error('Error saving whiteboard:', error));
+}
+
+function loadWhiteboardData() {
+    fetch(`/api/get-whiteboard-data/${classId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.data && data.data.imageData) {
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = data.data.imageData;
+        }
+    })
+    .catch(error => console.error('Error loading whiteboard:', error));
+}
+
+// Video functions
+function startVideo() {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then(stream => {
+        document.getElementById('localVideo').srcObject = stream;
+    })
+    .catch(error => {
+        console.error('Error accessing camera:', error);
+        alert('Could not access camera. Please check permissions.');
+    });
+}
+
+function shareScreen() {
+    navigator.mediaDevices.getDisplayMedia({ video: true })
+    .then(stream => {
+        document.getElementById('localVideo').srcObject = stream;
+    })
+    .catch(error => {
+        console.error('Error sharing screen:', error);
+        alert('Could not share screen.');
+    });
+}
+
+function toggleMute() {
+    const video = document.getElementById('localVideo');
+    if (video.srcObject) {
+        const audioTracks = video.srcObject.getAudioTracks();
+        audioTracks.forEach(track => {
+            track.enabled = !track.enabled;
+        });
+    }
+}
+
+// Panel functions
+function togglePanel(panel) {
+    const participantsPanel = document.getElementById('participantsPanel');
+    const chatPanel = document.getElementById('chatPanel');
+    
+    if (panel === 'participants') {
+        participantsPanel.classList.remove('d-none');
+        chatPanel.classList.add('d-none');
+    } else if (panel === 'chat') {
+        participantsPanel.classList.add('d-none');
+        chatPanel.classList.remove('d-none');
+    }
+}
+
+function toggleParticipants() {
+    togglePanel('participants');
+}
+
+// Class control functions
+function endClass() {
+    if (confirm('Are you sure you want to end this class? All participants will be disconnected.')) {
+        fetch(`/end-live-class/${classId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Class ended successfully');
+                window.location.href = '/live-classes';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while ending the class');
+        });
+    }
+}
+
+function leaveClass() {
+    if (confirm('Are you sure you want to leave this class?')) {
+        window.location.href = '/live-classes';
+    }
+}
+
+function toggleRecording() {
+    alert('Recording feature will be implemented in future updates');
+}
+
+// Chat functions
+function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (message) {
+        // Add message to chat (implement WebSocket for real-time chat)
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'mb-2 p-2 bg-white rounded';
+        messageDiv.innerHTML = `
+            <div class="fw-bold">{{ current_user.full_name or current_user.username }}</div>
+            <div>${message}</div>
+            <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+        `;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        input.value = '';
+    }
+}
+
+// Enter key for chat
+document.getElementById('chatInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+</script>
+{% endblock %}

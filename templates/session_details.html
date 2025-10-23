@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Session Details - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Session Info -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Session Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold">{{ session[2] }}</h6>
+                    <p class="text-muted small">{{ session[5] or 'No current prompt' }}</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Session Code</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="{{ session[1] }}" readonly>
+                            <button class="btn btn-outline-secondary" onclick="copySessionCode()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Status</label>
+                        <div>
+                            <span class="badge bg-{{ 'success' if session[3] else 'secondary' }}">
+                                {{ 'Active' if session[3] else 'Ended' }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Created</label>
+                        <p class="mb-0">{{ session[4] | dateformat('%B %d, %Y at %I:%M %p') }}</p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if session[3] %}
+                        <button class="btn btn-danger" onclick="endSession({{ session[0] }})">
+                            <i class="fas fa-stop me-2"></i>End Session
+                        </button>
+                        {% endif %}
+                        <a href="{{ url_for('session_analytics', session_id=session[0]) }}" class="btn btn-info">
+                            <i class="fas fa-chart-bar me-2"></i>View Analytics
+                        </a>
+                        <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Quick Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-primary mb-0">{{ participants|length }}</h4>
+                                <small class="text-muted">Participants</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success mb-0">{{ recent_responses|length }}</h4>
+                            <small class="text-muted">Responses</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Participants -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Session Participants
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if participants %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Username</th>
+                                        <th>Score</th>
+                                        <th>Responses</th>
+                                        <th>Accuracy</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for participant in participants %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-{{ 'warning' if loop.index <= 3 else 'secondary' }}">
+                                                #{{ loop.index }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ participant[0] }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-primary">{{ participant[1] }}</span>
+                                        </td>
+                                        <td>{{ participant[3] or 0 }}</td>
+                                        <td>
+                                            {% if participant[4] %}
+                                                <span class="text-success">{{ "%.1f"|format(participant[4]) }}%</span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ participant[2] | dateformat('%b %d, %I:%M %p') }}
+                                            </small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5>No participants yet</h5>
+                            <p class="text-muted">Share the session code to get students to join</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Responses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_responses %}
+                        <div class="timeline">
+                            {% for response in recent_responses %}
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ response[2] }}</strong>
+                                            <span class="badge bg-{{ 'success' if response[1] else 'danger' }} ms-2">
+                                                {{ 'Correct' if response[1] else 'Incorrect' }}
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ response[0] | dateformat('%I:%M %p') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-clock fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No responses yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copySessionCode() {
+    const codeInput = document.querySelector('input[value="{{ session[1] }}"]');
+    codeInput.select();
+    document.execCommand('copy');
+    
+    // Show feedback
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i>';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-secondary');
+    
+    setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+
+function endSession(sessionId) {
+    if (confirm('Are you sure you want to end this session? This action cannot be undone.')) {
+        fetch(`/end-session/${sessionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+}
+</script>
+{% endblock %}

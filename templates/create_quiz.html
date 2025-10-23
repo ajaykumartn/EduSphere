@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Create Quiz - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Create New Quiz
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Quiz Title *</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   placeholder="Enter quiz title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3" placeholder="Enter quiz description (optional)"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="time_limit" class="form-label">Time Limit per Question (seconds)</label>
+                                    <input type="number" class="form-control" id="time_limit" name="time_limit" 
+                                           value="30" min="10" max="300">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Create Quiz
+                            </button>
+                            <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4 bg-light">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-info-circle me-2 text-info"></i>Next Steps
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-question-circle fa-2x text-primary mb-2"></i>
+                                <h6>Add Questions</h6>
+                                <small class="text-muted">Create multiple choice questions for your quiz</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-key fa-2x text-success mb-2"></i>
+                                <h6>Get Quiz Code</h6>
+                                <small class="text-muted">Share the generated code with your students</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-chart-bar fa-2x text-warning mb-2"></i>
+                                <h6>Track Results</h6>
+                                <small class="text-muted">Monitor student performance and analytics</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

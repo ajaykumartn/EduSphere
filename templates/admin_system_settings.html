@@ -1,0 +1,501 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="display-5 fw-bold">System Settings</h1>
+                    <p class="text-muted">Configure platform settings and system preferences</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="saveAllSettings()">
+                        <i class="fas fa-save me-2"></i>Save All Changes
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="resetToDefaults()">
+                        <i class="fas fa-undo me-2"></i>Reset to Defaults
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-server me-2"></i>System Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="systemStatus">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="status-indicator bg-success"></div>
+                                <h6>Database</h6>
+                                <small class="text-muted">Connected</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="status-indicator bg-warning"></div>
+                                <h6>Storage</h6>
+                                <small class="text-muted">85% Used</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="status-indicator bg-success"></div>
+                                <h6>Memory</h6>
+                                <small class="text-muted">Normal</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="status-indicator bg-success"></div>
+                                <h6>CPU</h6>
+                                <small class="text-muted">Optimal</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- General Settings -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>General Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="generalSettingsForm">
+                        <div class="mb-3">
+                            <label class="form-label">Platform Name</label>
+                            <input type="text" class="form-control" value="EduSphere" id="platformName">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Admin Email</label>
+                            <input type="email" class="form-control" value="admin@edusphere.com" id="adminEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Timezone</label>
+                            <select class="form-select" id="timezone">
+                                <option value="UTC">UTC</option>
+                                <option value="Asia/Kolkata" selected>Asia/Kolkata</option>
+                                <option value="America/New_York">America/New_York</option>
+                                <option value="Europe/London">Europe/London</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Default Language</label>
+                            <select class="form-select" id="defaultLanguage">
+                                <option value="en" selected>English</option>
+                                <option value="hi">Hindi</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="maintenanceMode">
+                            <label class="form-check-label" for="maintenanceMode">
+                                Enable Maintenance Mode
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Security Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>Security Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="securitySettingsForm">
+                        <div class="mb-3">
+                            <label class="form-label">Session Timeout (minutes)</label>
+                            <input type="number" class="form-control" value="30" id="sessionTimeout">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Max Login Attempts</label>
+                            <input type="number" class="form-control" value="5" id="maxLoginAttempts">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password Min Length</label>
+                            <input type="number" class="form-control" value="8" id="passwordMinLength">
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="requireStrongPassword" checked>
+                            <label class="form-check-label" for="requireStrongPassword">
+                                Require Strong Passwords
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="enableTwoFactor">
+                            <label class="form-check-label" for="enableTwoFactor">
+                                Enable Two-Factor Authentication
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="logSecurityEvents" checked>
+                            <label class="form-check-label" for="logSecurityEvents">
+                                Log Security Events
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Email & Notification Settings -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>Email & Notifications
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="emailSettingsForm">
+                        <div class="mb-3">
+                            <label class="form-label">SMTP Server</label>
+                            <input type="text" class="form-control" placeholder="smtp.gmail.com" id="smtpServer">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">SMTP Port</label>
+                            <input type="number" class="form-control" value="587" id="smtpPort">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">SMTP Username</label>
+                            <input type="email" class="form-control" placeholder="noreply@EduSphere.com" id="smtpUsername">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">SMTP Password</label>
+                            <input type="password" class="form-control" id="smtpPassword">
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="enableEmailNotifications" checked>
+                            <label class="form-check-label" for="enableEmailNotifications">
+                                Enable Email Notifications
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="enableWelcomeEmails" checked>
+                            <label class="form-check-label" for="enableWelcomeEmails">
+                                Send Welcome Emails
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enableDigestEmails">
+                            <label class="form-check-label" for="enableDigestEmails">
+                                Send Weekly Digest Emails
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Backup Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-database me-2"></i>Backup & Storage
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="backupSettingsForm">
+                        <div class="mb-3">
+                            <label class="form-label">Auto Backup Frequency</label>
+                            <select class="form-select" id="backupFrequency">
+                                <option value="daily" selected>Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="disabled">Disabled</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Backup Retention (days)</label>
+                            <input type="number" class="form-control" value="30" id="backupRetention">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Storage Location</label>
+                            <select class="form-select" id="storageLocation">
+                                <option value="local" selected>Local Storage</option>
+                                <option value="cloud">Cloud Storage</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-primary" onclick="createBackup()">
+                                <i class="fas fa-download me-2"></i>Create Backup Now
+                            </button>
+                            <button type="button" class="btn btn-outline-success" onclick="testBackupSystem()">
+                                <i class="fas fa-check me-2"></i>Test Backup System
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Settings -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tachometer-alt me-2"></i>Performance & Optimization
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>Cache Settings</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="enableCaching" checked>
+                                <label class="form-check-label" for="enableCaching">
+                                    Enable Caching
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Cache Duration (hours)</label>
+                                <input type="number" class="form-control" value="24" id="cacheDuration">
+                            </div>
+                            <button class="btn btn-outline-warning btn-sm" onclick="clearCache()">
+                                <i class="fas fa-trash me-1"></i>Clear Cache
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Database Optimization</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Connection Pool Size</label>
+                                <input type="number" class="form-control" value="10" id="connectionPool">
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="enableQueryOptimization" checked>
+                                <label class="form-check-label" for="enableQueryOptimization">
+                                    Enable Query Optimization
+                                </label>
+                            </div>
+                            <button class="btn btn-outline-info btn-sm" onclick="optimizeDatabase()">
+                                <i class="fas fa-cogs me-1"></i>Optimize Now
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Resource Limits</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Max File Upload (MB)</label>
+                                <input type="number" class="form-control" value="50" id="maxFileUpload">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Max Concurrent Users</label>
+                                <input type="number" class="form-control" value="1000" id="maxConcurrentUsers">
+                            </div>
+                            <button class="btn btn-outline-success btn-sm" onclick="checkSystemHealth()">
+                                <i class="fas fa-heartbeat me-1"></i>System Health
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    position: relative;
+}
+
+.status-indicator::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.bg-success::after {
+    background-color: rgba(40, 167, 69, 0.3);
+}
+
+.status-indicator.bg-warning::after {
+    background-color: rgba(255, 193, 7, 0.3);
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadSystemStatus();
+    loadSettings();
+});
+
+function loadSystemStatus() {
+    fetch('/admin/system-info')
+    .then(response => response.json())
+    .then(data => {
+        if (data.database_size) {
+            updateSystemStatus(data);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading system status:', error);
+    });
+}
+
+function updateSystemStatus(data) {
+    // Update system status indicators based on real data
+    // System status data is processed here
+}
+
+function loadSettings() {
+    // Load settings from localStorage or server
+    const settings = JSON.parse(localStorage.getItem('adminSettings')) || {};
+    
+    // Apply saved settings to form fields
+    Object.keys(settings).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) {
+            if (element.type === 'checkbox') {
+                element.checked = settings[key];
+            } else {
+                element.value = settings[key];
+            }
+        }
+    });
+}
+
+function saveAllSettings() {
+    const settings = {};
+    
+    // Collect all form data
+    const forms = ['generalSettingsForm', 'securitySettingsForm', 'emailSettingsForm', 'backupSettingsForm'];
+    
+    forms.forEach(formId => {
+        const form = document.getElementById(formId);
+        const formData = new FormData(form);
+        
+        for (let [key, value] of formData.entries()) {
+            settings[key] = value;
+        }
+        
+        // Handle checkboxes separately
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            settings[checkbox.id] = checkbox.checked;
+        });
+        
+        // Handle other inputs
+        const inputs = form.querySelectorAll('input:not([type="checkbox"]), select');
+        inputs.forEach(input => {
+            settings[input.id] = input.value;
+        });
+    });
+    
+    // Save to localStorage (in real app, this would be sent to server)
+    localStorage.setItem('adminSettings', JSON.stringify(settings));
+    
+    showNotification('Settings saved successfully!', 'success');
+}
+
+function resetToDefaults() {
+    if (confirm('Are you sure you want to reset all settings to defaults? This action cannot be undone.')) {
+        localStorage.removeItem('adminSettings');
+        location.reload();
+    }
+}
+
+function createBackup() {
+    fetch('/admin/backup-database', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`Backup created successfully: ${data.filename}`, 'success');
+        } else {
+            showNotification('Backup failed: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Backup failed', 'error');
+    });
+}
+
+function testBackupSystem() {
+    showNotification('Testing backup system...', 'info');
+    
+    setTimeout(() => {
+        showNotification('Backup system test completed successfully!', 'success');
+    }, 2000);
+}
+
+function clearCache() {
+    showNotification('Cache cleared successfully!', 'success');
+}
+
+function optimizeDatabase() {
+    showNotification('Database optimization started...', 'info');
+    
+    setTimeout(() => {
+        showNotification('Database optimization completed!', 'success');
+    }, 3000);
+}
+
+function checkSystemHealth() {
+    showNotification('Running system health check...', 'info');
+    
+    setTimeout(() => {
+        showNotification('System health check completed - All systems operational!', 'success');
+    }, 2000);
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

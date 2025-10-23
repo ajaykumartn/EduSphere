@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Join FLUX Session - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="text-center mb-5">
+                <div class="mb-4">
+                    <i class="fas fa-user-graduate fa-4x text-success"></i>
+                </div>
+                <h1 class="display-5 fw-bold">Join FLUX Session</h1>
+                <p class="lead text-muted">Enter your session code and name to join the interactive classroom</p>
+            </div>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <form method="POST" action="{{ url_for('join_flux_session') }}">
+                        <div class="mb-4">
+                            <label for="session_code" class="form-label fw-bold">Session Code</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-success text-white">
+                                    <i class="fas fa-key"></i>
+                                </span>
+                                <input type="text" class="form-control text-uppercase" id="session_code" 
+                                       name="session_code" placeholder="Enter 6-digit code" 
+                                       maxlength="6" required style="letter-spacing: 0.2em;">
+                            </div>
+                            <div class="form-text">Ask your teacher for the session code</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-bold">Your Name</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control" id="username" 
+                                       name="username" placeholder="Enter your name" 
+                                       value="{{ current_user.full_name or current_user.username }}" required>
+                            </div>
+                            <div class="form-text">This will be displayed on the leaderboard</div>
+                        </div>
+                        
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Join Session
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('student_dashboard') }}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4 bg-light">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-info-circle me-2 text-info"></i>What to Expect
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="fas fa-comments text-warning me-2 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-1">Live Messages</h6>
+                                    <small class="text-muted">Receive real-time prompts and instructions from your teacher</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="fas fa-question-circle text-success me-2 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-1">Interactive Quizzes</h6>
+                                    <small class="text-muted">Answer questions and get instant feedback</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="fas fa-trophy text-warning me-2 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-1">Live Leaderboard</h6>
+                                    <small class="text-muted">See your ranking and compete with classmates</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-bolt text-primary me-2 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-1">Real-time Updates</h6>
+                                    <small class="text-muted">Everything happens instantly - no refresh needed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-uppercase session code
+document.getElementById('session_code').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
+
+// Auto-focus on session code input
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('session_code').focus();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,485 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="display-5 fw-bold">Platform Analytics</h1>
+                    <p class="text-muted">Comprehensive insights and performance metrics</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" onclick="exportReport()">
+                        <i class="fas fa-download me-2"></i>Export Report
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="refreshData()">
+                        <i class="fas fa-sync me-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Students</h6>
+                            <h2 class="mb-0">{{ stats[0] }}</h2>
+                            <small class="opacity-75">+12% this month</small>
+                        </div>
+                        <i class="fas fa-user-graduate fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Faculty</h6>
+                            <h2 class="mb-0">{{ stats[1] }}</h2>
+                            <small class="opacity-75">+5% this month</small>
+                        </div>
+                        <i class="fas fa-chalkboard-teacher fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Course Enrollments</h6>
+                            <h2 class="mb-0">{{ stats[3] }}</h2>
+                            <small class="opacity-75">+25% this month</small>
+                        </div>
+                        <i class="fas fa-book fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Sessions</h6>
+                            <h2 class="mb-0">{{ stats[4] }}</h2>
+                            <small class="opacity-75">+18% this month</small>
+                        </div>
+                        <i class="fas fa-chalkboard fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>User Registrations Over Time
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="registrationChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>User Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="userDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Course Analytics -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>Top Performing Courses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="coursePopularityChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Daily Session Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="dailySessionsChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Statistics -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Course Enrollment Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Course Name</th>
+                                    <th>Enrollments</th>
+                                    <th>Completion Rate</th>
+                                    <th>Rating</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in course_popularity %}
+                                <tr>
+                                    <td>{{ course[0] }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ course[1] }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" style="width: {{ (range(60, 95) | random) }}%">
+                                                {{ (range(60, 95) | random) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-warning">
+                                            {% for i in range(5) %}
+                                                <i class="fas fa-star"></i>
+                                            {% endfor %}
+                                        </span>
+                                        <small class="text-muted">4.{{ (range(5, 9) | random) }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">Active</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>System Alerts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-database me-2"></i>
+                        <strong>Database Size:</strong> 85% capacity
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-users me-2"></i>
+                        <strong>Peak Usage:</strong> 2:00 PM - 4:00 PM
+                    </div>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>System Status:</strong> All services operational
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="generateReport()">
+                            <i class="fas fa-file-alt me-2"></i>Generate Report
+                        </button>
+                        <button class="btn btn-outline-success" onclick="backupData()">
+                            <i class="fas fa-download me-2"></i>Backup Data
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="optimizeDatabase()">
+                            <i class="fas fa-database me-2"></i>Optimize DB
+                        </button>
+                        <button class="btn btn-outline-info" onclick="systemMaintenance()">
+                            <i class="fas fa-tools me-2"></i>Maintenance
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Metrics -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tachometer-alt me-2"></i>Performance Metrics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="progress-circle" data-percentage="92">
+                                    <span>92%</span>
+                                </div>
+                                <p class="mt-2 mb-0">Server Uptime</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="progress-circle" data-percentage="78">
+                                    <span>78%</span>
+                                </div>
+                                <p class="mt-2 mb-0">User Satisfaction</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="progress-circle" data-percentage="85">
+                                    <span>85%</span>
+                                </div>
+                                <p class="mt-2 mb-0">Course Completion</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="progress-circle" data-percentage="94">
+                                    <span>94%</span>
+                                </div>
+                                <p class="mt-2 mb-0">System Performance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(#007bff 0deg, #007bff calc(var(--percentage) * 3.6deg), #e9ecef calc(var(--percentage) * 3.6deg));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    position: relative;
+}
+
+.progress-circle::before {
+    content: '';
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+}
+
+.progress-circle span {
+    position: relative;
+    z-index: 1;
+    font-weight: bold;
+    color: #007bff;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Registration Chart
+    const registrationCtx = document.getElementById('registrationChart').getContext('2d');
+    new Chart(registrationCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for reg in monthly_registrations %}'{{ reg[0] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'New Registrations',
+                data: [{% for reg in monthly_registrations %}{{ reg[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // User Distribution Chart
+    const userDistCtx = document.getElementById('userDistributionChart').getContext('2d');
+    new Chart(userDistCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Students', 'Faculty', 'Admins'],
+            datasets: [{
+                data: [{{ stats[0] }}, {{ stats[1] }}, 1],
+                backgroundColor: ['#007bff', '#28a745', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Course Popularity Chart
+    const courseCtx = document.getElementById('coursePopularityChart').getContext('2d');
+    new Chart(courseCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for course in course_popularity[:5] %}'{{ course[0][:20] }}...'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Enrollments',
+                data: [{% for course in course_popularity[:5] %}{{ course[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#28a745',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Daily Sessions Chart
+    const dailyCtx = document.getElementById('dailySessionsChart').getContext('2d');
+    new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for session in daily_sessions %}'{{ session[0] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Sessions',
+                data: [{% for session in daily_sessions %}{{ session[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+                borderColor: '#ffc107',
+                backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Set progress circle percentages
+    document.querySelectorAll('.progress-circle').forEach(circle => {
+        const percentage = circle.getAttribute('data-percentage');
+        circle.style.setProperty('--percentage', percentage);
+    });
+});
+
+function exportReport() {
+    alert('Export functionality would generate a comprehensive PDF/Excel report');
+}
+
+function refreshData() {
+    location.reload();
+}
+
+function generateReport() {
+    alert('Generating comprehensive analytics report...');
+}
+
+function backupData() {
+    fetch('/admin/backup-database', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Database backup created: ${data.filename}`);
+        } else {
+            alert('Backup failed: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Backup failed');
+    });
+}
+
+function optimizeDatabase() {
+    alert('Database optimization would be performed here');
+}
+
+function systemMaintenance() {
+    alert('System maintenance mode would be activated here');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,430 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Students - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="fw-bold mb-1">Student Management</h2>
+                            <p class="mb-0 opacity-75">Monitor and manage your students' progress</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-light text-warning fs-6 px-3 py-2">
+                                <i class="fas fa-users me-1"></i>Student Portal
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-primary mb-2"></i>
+                    <h3 class="text-primary">{{ students|length }}</h3>
+                    <p class="text-muted mb-0">Session Participants</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-clipboard-check fa-3x text-success mb-2"></i>
+                    <h3 class="text-success">{{ quiz_students|length }}</h3>
+                    <p class="text-muted mb-0">Quiz Takers</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x text-warning mb-2"></i>
+                    <h3 class="text-warning">{{ "%.1f"|format((students|sum(attribute=2) / students|length) if students else 0) }}</h3>
+                    <p class="text-muted mb-0">Avg Session Score</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-star fa-3x text-info mb-2"></i>
+                    <h3 class="text-info">{{ "%.1f"|format((quiz_students|sum(attribute=4) / quiz_students|length) if quiz_students else 0) }}</h3>
+                    <p class="text-muted mb-0">Avg Quiz Score</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4" id="studentTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="session-students-tab" data-bs-toggle="tab" 
+                    data-bs-target="#session-students" type="button" role="tab">
+                <i class="fas fa-chalkboard me-2"></i>Session Participants
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="quiz-students-tab" data-bs-toggle="tab" 
+                    data-bs-target="#quiz-students" type="button" role="tab">
+                <i class="fas fa-clipboard-check me-2"></i>Quiz Participants
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="studentTabsContent">
+        <!-- Session Students Tab -->
+        <div class="tab-pane fade show active" id="session-students" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>FLUX Session Participants
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="sessionStudentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Sessions Joined</th>
+                                        <th>Average Score</th>
+                                        <th>Total Responses</th>
+                                        <th>Accuracy</th>
+                                        <th>Last Activity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="profile-image me-2">
+                                                    <i class="fas fa-user-circle fa-2x text-muted"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ student[0] }}</strong>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ student[1] }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-success">{{ "%.1f"|format(student[2] or 0) }}</span>
+                                        </td>
+                                        <td>{{ student[4] or 0 }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">{{ "%.1f"|format(student[5] or 0) }}%</span>
+                                                <div class="progress flex-grow-1" style="height: 6px; width: 60px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         style="width: {{ student[5] or 0 }}%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ student[3] | dateformat('%b %d, %Y') if student[3] else 'Never' }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-info" 
+                                                        onclick="viewStudentDetails('{{ student[0] }}', 'session')"
+                                                        title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-primary" 
+                                                        onclick="sendMessage('{{ student[0] }}')"
+                                                        title="Send Message">
+                                                    <i class="fas fa-envelope"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5>No session participants yet</h5>
+                            <p class="text-muted">Students will appear here once they join your FLUX sessions</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quiz Students Tab -->
+        <div class="tab-pane fade" id="quiz-students" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-check me-2"></i>Quiz Participants
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if quiz_students %}
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="quizStudentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Email</th>
+                                        <th>Quizzes Taken</th>
+                                        <th>Average Score</th>
+                                        <th>Last Quiz</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in quiz_students %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="profile-image me-2">
+                                                    <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ student[0] }}</strong>
+                                                    <br><small class="text-muted">{{ student[1] or 'No name' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ student[2] or 'No email' }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ student[3] }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-success">{{ "%.1f"|format(student[4] or 0) }}</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ student[5] | dateformat('%b %d, %Y') if student[5] else 'Never' }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-info" 
+                                                        onclick="viewStudentDetails('{{ student[0] }}', 'quiz')"
+                                                        title="View Quiz History">
+                                                    <i class="fas fa-history"></i>
+                                                </button>
+                                                <button class="btn btn-outline-success" 
+                                                        onclick="viewStudentProgress('{{ student[0] }}')"
+                                                        title="View Progress">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+                            <h5>No quiz participants yet</h5>
+                            <p class="text-muted">Students will appear here once they take your quizzes</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Student Details Modal -->
+<div class="modal fade" id="studentDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Student Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="studentDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Message Modal -->
+<div class="modal fade" id="sendMessageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="messageForm">
+                    <div class="mb-3">
+                        <label class="form-label">To:</label>
+                        <input type="text" class="form-control" id="messageRecipient" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subject:</label>
+                        <input type="text" class="form-control" id="messageSubject" placeholder="Enter subject">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message:</label>
+                        <textarea class="form-control" id="messageContent" rows="4" 
+                                  placeholder="Enter your message"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendStudentMessage()">
+                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Initialize DataTables for better table functionality
+$(document).ready(function() {
+    if ($('#sessionStudentsTable').length) {
+        $('#sessionStudentsTable').DataTable({
+            pageLength: 10,
+            order: [[4, 'desc']], // Sort by accuracy
+            columnDefs: [
+                { orderable: false, targets: [6] } // Disable sorting for Actions column
+            ]
+        });
+    }
+    
+    if ($('#quizStudentsTable').length) {
+        $('#quizStudentsTable').DataTable({
+            pageLength: 10,
+            order: [[3, 'desc']], // Sort by average score
+            columnDefs: [
+                { orderable: false, targets: [5] } // Disable sorting for Actions column
+            ]
+        });
+    }
+});
+
+function viewStudentDetails(username, type) {
+    // Show loading
+    document.getElementById('studentDetailsContent').innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading student details...</p>
+        </div>
+    `;
+    
+    // Show modal
+    new bootstrap.Modal(document.getElementById('studentDetailsModal')).show();
+    
+    // Simulate loading student details (you can implement actual API call here)
+    setTimeout(() => {
+        document.getElementById('studentDetailsContent').innerHTML = `
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <i class="fas fa-user-circle fa-5x text-primary mb-3"></i>
+                    <h5>${username}</h5>
+                    <span class="badge bg-${type === 'quiz' ? 'success' : 'primary'}">${type === 'quiz' ? 'Quiz Participant' : 'Session Participant'}</span>
+                </div>
+                <div class="col-md-8">
+                    <h6>Performance Summary</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Overall Performance</span>
+                            <span class="fw-bold text-success">85%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Participation Rate</span>
+                            <span class="fw-bold text-info">92%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Improvement Trend</span>
+                            <span class="fw-bold text-warning">+15%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+function sendMessage(username) {
+    document.getElementById('messageRecipient').value = username;
+    new bootstrap.Modal(document.getElementById('sendMessageModal')).show();
+}
+
+function sendStudentMessage() {
+    const recipient = document.getElementById('messageRecipient').value;
+    const subject = document.getElementById('messageSubject').value;
+    const content = document.getElementById('messageContent').value;
+    
+    if (!subject || !content) {
+        alert('Please fill in both subject and message');
+        return;
+    }
+    
+    // Simulate sending message
+    alert(`Message sent to ${recipient}!`);
+    bootstrap.Modal.getInstance(document.getElementById('sendMessageModal')).hide();
+    
+    // Clear form
+    document.getElementById('messageSubject').value = '';
+    document.getElementById('messageContent').value = '';
+}
+
+function viewStudentProgress(username) {
+    alert(`Viewing progress for ${username} - This feature can be expanded to show detailed progress charts`);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Test Series - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="fw-bold mb-1">
+                                <i class="fas fa-clipboard-check me-2"></i>Test Series
+                            </h2>
+                            <p class="mb-0 opacity-75">Practice with comprehensive mock tests for competitive exams</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-light text-success fs-6 px-3 py-2">
+                                <i class="fas fa-trophy me-1"></i>{{ tests_by_exam|length }} Exam Categories
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Attempts -->
+    {% if recent_attempts %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Attempts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for attempt in recent_attempts %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-left-primary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="fw-bold">{{ attempt[1] }}</h6>
+                                            <small class="text-muted">{{ attempt[2] }}</small>
+                                        </div>
+                                        {% if attempt[6] %}
+                                        <span class="badge bg-success">Completed</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if attempt[6] %}
+                                    <div class="mt-2">
+                                        <div class="fw-bold text-primary">Score: {{ attempt[3] }}/{{ attempt[4] * 4 }}</div>
+                                        <small class="text-muted">{{ attempt[5] | dateformat('%b %d, %Y') }}</small>
+                                    </div>
+                                    <div class="mt-2">
+                                        <a href="{{ url_for('test_result', attempt_id=attempt[0]) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-chart-bar me-1"></i>View Result
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Test Series by Exam Type -->
+    {% for exam_type, tests in tests_by_exam.items() %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-{{ 'primary' if exam_type == 'JEE Main' else 'success' if exam_type == 'NEET' else 'warning' if exam_type == 'CAT' else 'info' }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="text-white mb-0">
+                            <i class="fas fa-{{ 'calculator' if exam_type == 'JEE Main' else 'microscope' if exam_type == 'NEET' else 'briefcase' if exam_type == 'CAT' else 'university' }} me-2"></i>
+                            {{ exam_type }}
+                        </h4>
+                        <span class="badge bg-light text-dark">{{ tests|length }} Tests Available</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Exam Description -->
+                    <div class="alert alert-light mb-4">
+                        <div class="row">
+                            <div class="col-md-8">
+                                {% if exam_type == 'JEE Main' %}
+                                <h6><i class="fas fa-info-circle me-2"></i>Joint Entrance Examination (Main)</h6>
+                                <p class="mb-0">National level engineering entrance exam for admission to NITs, IIITs, and other centrally funded technical institutions.</p>
+                                {% elif exam_type == 'NEET' %}
+                                <h6><i class="fas fa-info-circle me-2"></i>National Eligibility cum Entrance Test</h6>
+                                <p class="mb-0">National level medical entrance exam for admission to MBBS, BDS, and other medical courses in India.</p>
+                                {% elif exam_type == 'CAT' %}
+                                <h6><i class="fas fa-info-circle me-2"></i>Common Admission Test</h6>
+                                <p class="mb-0">Computer-based test for admission to MBA programs in IIMs and other top business schools.</p>
+                                {% elif exam_type == 'UPSC' %}
+                                <h6><i class="fas fa-info-circle me-2"></i>Union Public Service Commission</h6>
+                                <p class="mb-0">Civil Services Examination for recruitment to various Group A and Group B services of the Government of India.</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    {% if exam_type == 'JEE Main' %}
+                                    <div class="mb-2"><strong>Subjects:</strong> Mathematics, Physics, Chemistry</div>
+                                    <div><strong>Duration:</strong> 3 hours</div>
+                                    {% elif exam_type == 'NEET' %}
+                                    <div class="mb-2"><strong>Subjects:</strong> Biology, Chemistry, Physics</div>
+                                    <div><strong>Duration:</strong> 3 hours</div>
+                                    {% elif exam_type == 'CAT' %}
+                                    <div class="mb-2"><strong>Sections:</strong> Quantitative, Verbal, Logical</div>
+                                    <div><strong>Duration:</strong> 3 hours</div>
+                                    {% elif exam_type == 'UPSC' %}
+                                    <div class="mb-2"><strong>Papers:</strong> General Studies, Optional</div>
+                                    <div><strong>Duration:</strong> 2 hours each</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Test Cards -->
+                    <div class="row">
+                        {% for test in tests %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-{{ 'primary' if exam_type == 'JEE Main' else 'success' if exam_type == 'NEET' else 'warning' if exam_type == 'CAT' else 'info' }}">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">{{ test[4] }}</h6>
+                                        <span class="badge bg-{{ 'primary' if test[5] == 'Easy' else 'warning' if test[5] == 'Medium' else 'danger' }}">
+                                            {{ test[5] }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ test[1] }}</h6>
+                                    <p class="card-text text-muted small">{{ test[2] }}</p>
+                                    
+                                    <div class="row text-center mb-3">
+                                        <div class="col-4">
+                                            <div class="border-end">
+                                                <div class="fw-bold text-primary">{{ test[8] }}</div>
+                                                <small class="text-muted">Questions</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="border-end">
+                                                <div class="fw-bold text-success">{{ test[7] }}</div>
+                                                <small class="text-muted">Marks</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="fw-bold text-warning">{{ test[6] }}m</div>
+                                            <small class="text-muted">Duration</small>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if test[9] > 0 %}
+                                    <div class="alert alert-info py-2">
+                                        <small><i class="fas fa-info-circle me-1"></i>You have attempted this test {{ test[9] }} time(s)</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-grid">
+                                        <a href="{{ url_for('start_test', test_id=test[0]) }}" 
+                                           class="btn btn-{{ 'primary' if exam_type == 'JEE Main' else 'success' if exam_type == 'NEET' else 'warning' if exam_type == 'CAT' else 'info' }}">
+                                            <i class="fas fa-play me-2"></i>
+                                            {% if test[9] > 0 %}Retake Test{% else %}Start Test{% endif %}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    {% if not tests_by_exam %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-clipboard-check fa-4x text-muted mb-3"></i>
+                    <h4>No Test Series Available</h4>
+                    <p class="text-muted">Test series will be available soon. Check back later!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add any JavaScript for test series functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate cards on scroll
+    const cards = document.querySelectorAll('.card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

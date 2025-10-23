@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLUX Student - EduSphere</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Join Modal -->
+    <div class="modal fade" id="joinModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-bolt me-2"></i>Join FLUX Session
+                    </h5>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-user-graduate fa-4x text-primary mb-3"></i>
+                        <h4>Session: {{ session_code }}</h4>
+                        <p class="text-muted">Enter your name to join the session</p>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" id="studentName" class="form-control form-control-lg text-center" 
+                               placeholder="Enter your name" maxlength="20">
+                    </div>
+                    <button id="joinBtn" class="btn btn-primary btn-lg w-100" disabled>
+                        <i class="fas fa-sign-in-alt me-2"></i>Join Session
+                    </button>
+                    <div id="joinError" class="alert alert-danger mt-3 d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Interface -->
+    <div id="mainInterface" class="d-none">
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container-fluid">
+                <span class="navbar-brand">
+                    <i class="fas fa-bolt me-2"></i>FLUX Session: {{ session_code }}
+                </span>
+                <div class="d-flex align-items-center text-white">
+                    <i class="fas fa-user me-2"></i>
+                    <span id="studentNameDisplay"></span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid py-4">
+            <div class="row g-4">
+                <!-- Main Content Area -->
+                <div class="col-lg-8">
+                    <!-- Connection Status -->
+                    <div id="connectionStatus" class="alert alert-info">
+                        <i class="fas fa-wifi me-2"></i>Connecting to session...
+                    </div>
+
+                    <!-- Live Prompt Display -->
+                    <div id="promptCard" class="card d-none">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-bullhorn me-2"></i>Live Message
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="promptContent" class="lead"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Interface -->
+                    <div id="quizCard" class="card d-none">
+                        <div class="card-header bg-warning text-dark">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-question-circle me-2"></i>Quick Quiz
+                                </h5>
+                                <div id="quizTimer" class="fw-bold fs-4">
+                                    <i class="fas fa-clock me-1"></i>
+                                    <span id="timeLeft">30</span>s
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h4 id="quizQuestion" class="mb-4"></h4>
+                            <div id="quizOptions" class="d-grid gap-2">
+                                <!-- Options will be populated by JavaScript -->
+                            </div>
+                            <div class="mt-4 text-center">
+                                <button id="submitQuizBtn" class="btn btn-primary btn-lg" disabled>
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Answer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Result -->
+                    <div id="quizResultCard" class="card d-none">
+                        <div class="card-body text-center">
+                            <div id="resultIcon" class="mb-3"></div>
+                            <h4 id="resultMessage"></h4>
+                            <p id="resultDetails" class="text-muted"></p>
+                        </div>
+                    </div>
+
+                    <!-- Waiting State -->
+                    <div id="waitingCard" class="card">
+                        <div class="card-body text-center py-5">
+                            <div class="spinner mb-3"></div>
+                            <h5>Waiting for teacher...</h5>
+                            <p class="text-muted">Your teacher will send prompts and quizzes that will appear here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Live Leaderboard -->
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-trophy me-2"></i>Live Leaderboard
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="leaderboardContainer">
+                                <div class="text-center py-4">
+                                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Loading leaderboard...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Student Stats -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-line me-2"></i>Your Stats
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="stat-number text-primary" id="yourScore">0</div>
+                                    <div class="stat-label">Points</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="stat-number text-success" id="yourRank">-</div>
+                                    <div class="stat-label">Rank</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sessionCode = '{{ session_code }}';
+        let studentName = '';
+        let participantId = null;
+        let pollInterval = null;
+        let quizTimer = null;
+        let currentQuizId = null;
+        let hasAnswered = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showJoinModal();
+            initializeEventListeners();
+        });
+
+        function initializeEventListeners() {
+            document.getElementById('studentName').addEventListener('input', function() {
+                const name = this.value.trim();
+                document.getElementById('joinBtn').disabled = name.length < 2;
+            });
+
+            document.getElementById('joinBtn').addEventListener('click', joinSession);
+            document.getElementById('submitQuizBtn').addEventListener('click', submitQuizAnswer);
+        }
+
+        function showJoinModal() {
+            const modal = new bootstrap.Modal(document.getElementById('joinModal'));
+            modal.show();
+        }
+
+        function joinSession() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (studentName.length < 2) return;
+
+            fetch('/api/flux/join-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_code: sessionCode,
+                    username: studentName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    participantId = data.participant_id;
+                    document.getElementById('studentNameDisplay').textContent = studentName;
+                    bootstrap.Modal.getInstance(document.getElementById('joinModal')).hide();
+                    document.getElementById('mainInterface').classList.remove('d-none');
+                    startPolling();
+                } else {
+                    showJoinError(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error joining session:', error);
+                showJoinError('Failed to join session. Please try again.');
+            });
+        }
+
+        function showJoinError(message) {
+            const errorDiv = document.getElementById('joinError');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('d-none');
+        }
+
+        function startPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(pollForUpdates, 2000);
+            pollForUpdates();
+        }
+
+        function pollForUpdates() {
+            fetch(`/api/flux/student-poll/${sessionCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.active) {
+                        showConnectionError();
+                        return;
+                    }
+
+                    updateConnectionStatus(true);
+                    updateLeaderboard(data.leaderboard);
+
+                    if (data.quiz && !hasAnswered) {
+                        showQuiz(data.quiz);
+                    } else if (data.prompt) {
+                        showPrompt(data.prompt);
+                    } else if (!data.quiz && !data.prompt) {
+                        showWaitingState();
+                    }
+                })
+                .catch(error => {
+                    console.error('Polling error:', error);
+                    updateConnectionStatus(false);
+                });
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusDiv = document.getElementById('connectionStatus');
+            if (connected) {
+                statusDiv.className = 'alert alert-success';
+                statusDiv.innerHTML = '<i class="fas fa-wifi me-2"></i>Connected to session';
+            } else {
+                statusDiv.className = 'alert alert-warning';
+                statusDiv.innerHTML = '<i class="fas fa-wifi me-2"></i>Connection issues - trying to reconnect...';
+            }
+        }
+
+        function showPrompt(prompt) {
+            hideAllCards();
+            document.getElementById('promptContent').textContent = prompt;
+            document.getElementById('promptCard').classList.remove('d-none');
+        }
+
+        function showQuiz(quiz) {
+            hideAllCards();
+            hasAnswered = false;
+            currentQuizId = quiz.quiz_id;
+
+            document.getElementById('quizQuestion').textContent = quiz.question;
+            
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            quiz.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'btn btn-outline-primary option-btn';
+                button.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                button.onclick = () => selectQuizOption(index, button);
+                optionsContainer.appendChild(button);
+            });
+
+            document.getElementById('quizCard').classList.remove('d-none');
+            startQuizTimer(quiz.timer);
+        }
+
+        function selectQuizOption(index, button) {
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected', 'btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+
+            button.classList.add('selected', 'btn-primary');
+            button.classList.remove('btn-outline-primary');
+
+            document.getElementById('submitQuizBtn').disabled = false;
+            document.getElementById('submitQuizBtn').dataset.answer = index;
+        }
+
+        function startQuizTimer(seconds) {
+            let timeLeft = seconds;
+            document.getElementById('timeLeft').textContent = timeLeft;
+
+            if (quizTimer) clearInterval(quizTimer);
+            
+            quizTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeLeft').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(quizTimer);
+                    if (!hasAnswered) {
+                        submitQuizAnswer();
+                    }
+                }
+            }, 1000);
+        }
+
+        function submitQuizAnswer() {
+            if (hasAnswered) return;
+
+            const selectedAnswer = document.getElementById('submitQuizBtn').dataset.answer || -1;
+            hasAnswered = true;
+            document.getElementById('submitQuizBtn').disabled = true;
+
+            if (quizTimer) {
+                clearInterval(quizTimer);
+                quizTimer = null;
+            }
+
+            fetch('/api/flux/submit-answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_code: sessionCode,
+                    username: studentName,
+                    answer: selectedAnswer,
+                    quiz_id: currentQuizId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showQuizResult(data.correct, data.correct_answer);
+                }
+            })
+            .catch(error => console.error('Error submitting answer:', error));
+        }
+
+        function showQuizResult(isCorrect, correctAnswer) {
+            hideAllCards();
+
+            const resultIcon = document.getElementById('resultIcon');
+            const resultMessage = document.getElementById('resultMessage');
+            const resultDetails = document.getElementById('resultDetails');
+
+            if (isCorrect) {
+                resultIcon.innerHTML = '<i class="fas fa-check-circle fa-4x text-success"></i>';
+                resultMessage.textContent = 'Correct!';
+                resultMessage.className = 'text-success';
+                resultDetails.textContent = 'Great job! You earned 10 points.';
+            } else {
+                resultIcon.innerHTML = '<i class="fas fa-times-circle fa-4x text-danger"></i>';
+                resultMessage.textContent = 'Incorrect';
+                resultMessage.className = 'text-danger';
+                resultDetails.textContent = `The correct answer was ${String.fromCharCode(65 + parseInt(correctAnswer))}.`;
+            }
+
+            document.getElementById('quizResultCard').classList.remove('d-none');
+
+            setTimeout(() => {
+                showWaitingState();
+            }, 3000);
+        }
+
+        function showWaitingState() {
+            hideAllCards();
+            document.getElementById('waitingCard').classList.remove('d-none');
+        }
+
+        function hideAllCards() {
+            document.getElementById('promptCard').classList.add('d-none');
+            document.getElementById('quizCard').classList.add('d-none');
+            document.getElementById('quizResultCard').classList.add('d-none');
+            document.getElementById('waitingCard').classList.add('d-none');
+        }
+
+        function updateLeaderboard(leaderboard) {
+            const container = document.getElementById('leaderboardContainer');
+            
+            if (leaderboard.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No participants yet...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            let yourRank = '-';
+            let yourScore = 0;
+
+            leaderboard.forEach((item, index) => {
+                const [username, score] = item;
+                const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
+                const isYou = username === studentName;
+
+                if (isYou) {
+                    yourRank = index + 1;
+                    yourScore = score;
+                }
+
+                html += `
+                    <div class="leaderboard-item ${isYou ? 'border border-primary' : ''}">
+                        <div class="rank-badge ${rankClass}">${index + 1}</div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">${username} ${isYou ? '(You)' : ''}</div>
+                            <small class="text-muted">${score} points</small>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            document.getElementById('yourScore').textContent = yourScore;
+            document.getElementById('yourRank').textContent = yourRank;
+        }
+
+        function showConnectionError() {
+            updateConnectionStatus(false);
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+        }
+
+        window.addEventListener('beforeunload', function() {
+            if (pollInterval) clearInterval(pollInterval);
+            if (quizTimer) clearInterval(quizTimer);
+        });
+    </script>
+</body>
+</html>

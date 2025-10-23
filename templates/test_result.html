@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}Test Results - {{ attempt[6] }} - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Results Header -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if (attempt[0] / attempt[9] * 100) >= 75 %}
+                        <i class="fas fa-trophy fa-4x text-warning"></i>
+                        {% elif (attempt[0] / attempt[9] * 100) >= 50 %}
+                        <i class="fas fa-medal fa-4x text-success"></i>
+                        {% else %}
+                        <i class="fas fa-chart-line fa-4x text-info"></i>
+                        {% endif %}
+                    </div>
+                    <h2 class="fw-bold mb-2">{{ attempt[6] }}</h2>
+                    <p class="text-muted mb-4">{{ attempt[7] }} - {{ attempt[8] }}</p>
+                    
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="border-end">
+                                <h3 class="text-primary mb-0">{{ attempt[0] }}</h3>
+                                <small class="text-muted">Score</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border-end">
+                                <h3 class="text-info mb-0">{{ attempt[1] }}</h3>
+                                <small class="text-muted">Total Questions</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border-end">
+                                <h3 class="text-success mb-0">{{ "%.1f"|format((attempt[0] / attempt[9] * 100) if attempt[9] > 0 else 0) }}%</h3>
+                                <small class="text-muted">Percentage</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border-end">
+                                <h3 class="text-warning mb-0">{{ rank }}</h3>
+                                <small class="text-muted">Rank</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="border-end">
+                                <h3 class="text-info mb-0">{{ percentile }}%</h3>
+                                <small class="text-muted">Percentile</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <h3 class="text-secondary mb-0">{{ attempt[9] }}</h3>
+                            <small class="text-muted">Max Marks</small>
+                        </div>
+                    </div>
+                    
+                    {% if attempt[5] %}
+                    <p class="text-muted mt-3">
+                        <i class="fas fa-clock me-1"></i>
+                        Completed on {{ attempt[5] | dateformat('%B %d, %Y at %I:%M %p') }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Performance Analysis -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-pie me-2"></i>Performance Breakdown
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="performanceChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Answer Analysis
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-check-circle text-success me-2"></i>Correct Answers</span>
+                                    <span class="fw-bold text-success">{{ attempt[2] }}</span>
+                                </div>
+                                <div class="progress mt-1">
+                                    <div class="progress-bar bg-success" 
+                                         style="width: {{ (attempt[2] / attempt[1] * 100) if attempt[1] > 0 else 0 }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-times-circle text-danger me-2"></i>Wrong Answers</span>
+                                    <span class="fw-bold text-danger">{{ attempt[3] }}</span>
+                                </div>
+                                <div class="progress mt-1">
+                                    <div class="progress-bar bg-danger" 
+                                         style="width: {{ (attempt[3] / attempt[1] * 100) if attempt[1] > 0 else 0 }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span><i class="fas fa-question-circle text-secondary me-2"></i>Unanswered</span>
+                                    <span class="fw-bold text-secondary">{{ attempt[4] }}</span>
+                                </div>
+                                <div class="progress mt-1">
+                                    <div class="progress-bar bg-secondary" 
+                                         style="width: {{ (attempt[4] / attempt[1] * 100) if attempt[1] > 0 else 0 }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <h4 class="text-primary">Accuracy: {{ "%.1f"|format((attempt[2] / (attempt[2] + attempt[3]) * 100) if (attempt[2] + attempt[3]) > 0 else 0) }}%</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Insights -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Performance Insights
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                {% set accuracy = (attempt[2] / (attempt[2] + attempt[3]) * 100) if (attempt[2] + attempt[3]) > 0 else 0 %}
+                                {% if accuracy >= 80 %}
+                                <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                                <h6 class="text-success">Excellent Performance!</h6>
+                                <p class="small text-muted">You have a strong grasp of the concepts. Keep practicing to maintain this level.</p>
+                                {% elif accuracy >= 60 %}
+                                <i class="fas fa-thumbs-up fa-2x text-success mb-2"></i>
+                                <h6 class="text-info">Good Performance!</h6>
+                                <p class="small text-muted">You're on the right track. Focus on areas where you made mistakes.</p>
+                                {% else %}
+                                <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                <h6 class="text-warning">Room for Improvement</h6>
+                                <p class="small text-muted">Don't worry! Practice more questions and review the concepts.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                {% if attempt[4] <= 2 %}
+                                <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                                <h6 class="text-success">Great Time Management!</h6>
+                                <p class="small text-muted">You answered most questions. Good time management skills.</p>
+                                {% else %}
+                                <i class="fas fa-hourglass-half fa-2x text-warning mb-2"></i>
+                                <h6 class="text-warning">Work on Speed</h6>
+                                <p class="small text-muted">Try to improve your solving speed to attempt more questions.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                {% if percentile >= 75 %}
+                                <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                                <h6 class="text-warning">Top Performer!</h6>
+                                <p class="small text-muted">You're in the top 25% of test takers. Excellent work!</p>
+                                {% elif percentile >= 50 %}
+                                <i class="fas fa-medal fa-2x text-info mb-2"></i>
+                                <h6 class="text-info">Above Average</h6>
+                                <p class="small text-muted">You performed better than half of the test takers.</p>
+                                {% else %}
+                                <i class="fas fa-arrow-up fa-2x text-primary mb-2"></i>
+                                <h6 class="text-primary">Keep Improving</h6>
+                                <p class="small text-muted">Focus on consistent practice to improve your ranking.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed Solutions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Detailed Solutions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if answers %}
+                        {% for answer in answers %}
+                        <div class="card mb-3 border-{{ 'success' if answer[7] else 'danger' if answer[6] else 'secondary' }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h6 class="fw-bold mb-0">Question {{ loop.index }}</h6>
+                                    <div>
+                                        {% if answer[6] %}
+                                            {% if answer[7] %}
+                                            <span class="badge bg-success">Correct</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Incorrect</span>
+                                            {% endif %}
+                                        {% else %}
+                                        <span class="badge bg-secondary">Not Answered</span>
+                                        {% endif %}
+                                        <span class="badge bg-info">{{ answer[9] }} marks</span>
+                                    </div>
+                                </div>
+                                
+                                <p class="mb-3">{{ answer[0] }}</p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-2">
+                                            <span class="badge bg-{{ 'success' if answer[5] == 'A' else ('primary' if answer[6] == 'A' else 'light text-dark') }}">
+                                                A
+                                            </span>
+                                            {{ answer[1] }}
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-{{ 'success' if answer[5] == 'B' else ('primary' if answer[6] == 'B' else 'light text-dark') }}">
+                                                B
+                                            </span>
+                                            {{ answer[2] }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-2">
+                                            <span class="badge bg-{{ 'success' if answer[5] == 'C' else ('primary' if answer[6] == 'C' else 'light text-dark') }}">
+                                                C
+                                            </span>
+                                            {{ answer[3] }}
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-{{ 'success' if answer[5] == 'D' else ('primary' if answer[6] == 'D' else 'light text-dark') }}">
+                                                D
+                                            </span>
+                                            {{ answer[4] }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3 p-3 bg-light rounded">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <small class="text-muted">
+                                                <strong>Your Answer:</strong> 
+                                                {% if answer[6] %}
+                                                    {{ answer[6] }}
+                                                {% else %}
+                                                    <span class="text-secondary">Not Answered</span>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small class="text-muted">
+                                                <strong>Correct Answer:</strong> {{ answer[5] }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% if answer[8] %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <strong>Explanation:</strong> {{ answer[8] }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                            <h5>No answers recorded</h5>
+                            <p class="text-muted">There seems to be an issue with the test results</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('test_series') }}" class="btn btn-primary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Test Series
+                </a>
+                <button class="btn btn-secondary me-2" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Print Results
+                </button>
+                <button class="btn btn-info" onclick="shareResults()">
+                    <i class="fas fa-share me-2"></i>Share Results
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Performance Chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const correct = {{ attempt[2] }};
+const wrong = {{ attempt[3] }};
+const unanswered = {{ attempt[4] }};
+
+const performanceChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Correct', 'Wrong', 'Unanswered'],
+        datasets: [{
+            data: [correct, wrong, unanswered],
+            backgroundColor: ['#28a745', '#dc3545', '#6c757d'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+function shareResults() {
+    const score = {{ attempt[0] }};
+    const total = {{ attempt[9] }};
+    const percentage = {{ "%.1f"|format((attempt[0] / attempt[9] * 100) if attempt[9] > 0 else 0) }};
+    const testName = "{{ attempt[6] }}";
+    
+    const text = `I scored ${score}/${total} (${percentage}%) in ${testName} on EduSphere! 🎉`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'My Test Results',
+            text: text,
+            url: window.location.href
+        });
+    } else {
+        // Fallback - copy to clipboard
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Results copied to clipboard!');
+        });
+    }
+}
+</script>
+{% endblock %}

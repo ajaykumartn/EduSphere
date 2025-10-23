@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Tracker - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-user-check me-2 text-success"></i>Attendance Tracker
+                    </h1>
+                    <p class="text-muted mb-0">Track and manage student attendance</p>
+                </div>
+                <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Classes</h6>
+                            <h3 class="mb-0">{{ classes|length }}</h3>
+                        </div>
+                        <i class="fas fa-chalkboard fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Avg. Attendance</h6>
+                            <h3 class="mb-0">85%</h3>
+                        </div>
+                        <i class="fas fa-percentage fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Present Today</h6>
+                            <h3 class="mb-0">42</h3>
+                        </div>
+                        <i class="fas fa-user-check fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Absent Today</h6>
+                            <h3 class="mb-0">8</h3>
+                        </div>
+                        <i class="fas fa-user-times fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-success w-100" onclick="markAttendanceToday()">
+                                <i class="fas fa-check me-2"></i>Mark Today's Attendance
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" onclick="viewAttendanceReport()">
+                                <i class="fas fa-chart-bar me-2"></i>View Reports
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-info w-100" onclick="exportAttendance()">
+                                <i class="fas fa-download me-2"></i>Export Data
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-warning w-100" onclick="sendAbsenteeNotifications()">
+                                <i class="fas fa-bell me-2"></i>Notify Absentees
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>Class Attendance
+                    </h5>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="filterByDate()">
+                            <i class="fas fa-calendar me-1"></i>Filter by Date
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="bulkActions()">
+                            <i class="fas fa-tasks me-1"></i>Bulk Actions
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if classes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="attendanceTable">
+                                <thead>
+                                    <tr>
+                                        <th>Class Title</th>
+                                        <th>Date & Time</th>
+                                        <th>Status</th>
+                                        <th>Participants</th>
+                                        <th>Attendance Rate</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for class in classes %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">{{ class[1] }}</div>
+                                            <small class="text-muted">Class ID: {{ class[0] }}</small>
+                                        </td>
+                                        <td>
+                                            {% if class[2] %}
+                                                {{ class[2]|dateformat('%b %d, %Y at %I:%M %p') }}
+                                            {% else %}
+                                                <span class="text-muted">Not scheduled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if class[3] %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Completed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ class[4] }} students</span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-success" style="width: 85%">85%</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" onclick="viewClassAttendance({{ class[0] }})" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-success" onclick="markAttendance({{ class[0] }})" title="Mark Attendance">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn btn-outline-info" onclick="downloadReport({{ class[0] }})" title="Download Report">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chalkboard fa-3x text-muted mb-3"></i>
+                            <h5>No Classes Found</h5>
+                            <p class="text-muted">Create live classes to start tracking attendance</p>
+                            <a href="{{ url_for('live_classes') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Create Live Class
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function markAttendanceToday() {
+    showNotification('Opening today\'s attendance...', 'info');
+    // Implementation for marking today's attendance
+}
+
+function viewAttendanceReport() {
+    showNotification('Loading attendance reports...', 'info');
+    // Implementation for viewing reports
+}
+
+function exportAttendance() {
+    showNotification('Exporting attendance data...', 'info');
+    // Implementation for exporting data
+}
+
+function sendAbsenteeNotifications() {
+    showNotification('Sending notifications to absentees...', 'info');
+    // Implementation for sending notifications
+}
+
+function viewClassAttendance(classId) {
+    showNotification('Loading class attendance details...', 'info');
+    // Implementation for viewing class attendance
+}
+
+function markAttendance(classId) {
+    showNotification('Opening attendance marking interface...', 'info');
+    // Implementation for marking attendance
+}
+
+function downloadReport(classId) {
+    showNotification('Downloading attendance report...', 'info');
+    // Implementation for downloading report
+}
+
+function filterByDate() {
+    showNotification('Date filter coming soon!', 'info');
+    // Implementation for date filtering
+}
+
+function bulkActions() {
+    showNotification('Bulk actions coming soon!', 'info');
+    // Implementation for bulk actions
+}
+
+function showNotification(message, type = 'info') {
+    const alertClass = type === 'info' ? 'alert-info' : type === 'success' ? 'alert-success' : 'alert-warning';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) alert.remove();
+    }, 3000);
+}
+
+// Initialize DataTable
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof $ !== 'undefined' && $.fn.DataTable) {
+        $('#attendanceTable').DataTable({
+            responsive: true,
+            pageLength: 15,
+            order: [[1, 'desc']]
+        });
+    }
+});
+</script>
+{% endblock %}

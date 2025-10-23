@@ -1,0 +1,998 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Enhanced Hero Section -->
+<div class="hero-section position-relative overflow-hidden">
+    <div class="container position-relative">
+        <div class="row align-items-center min-vh-100 py-5">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <div class="badge bg-gradient-primary text-white px-3 py-2 mb-3">
+                        <i class="fas fa-star me-2"></i>India's #1 Exam Platform
+                    </div>
+                    <h1 class="display-3 fw-bold mb-4 text-white">
+                        Master Your <span class="text-gradient">Competitive Exams</span> with EduSphere
+                    </h1>
+                    <p class="lead mb-4 text-white-50">
+                        Experience the future of learning with our innovative FLUX Classroom, 
+                        comprehensive test series, live classes, and AI-powered analytics.
+                    </p>
+                    <div class="hero-features mb-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>Live Interactive Classes</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>Real Exam Simulations</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>AI Performance Analytics</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>Expert Faculty Support</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>24/7 Doubt Resolution</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>Mobile Learning App</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-actions d-flex flex-wrap gap-3">
+                        {% if not current_user.is_authenticated %}
+                            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3">
+                                <i class="fas fa-rocket me-2"></i>Start Free Trial
+                            </a>
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg px-4 py-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 py-3">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Live Stats Counter -->
+                    <div class="live-stats mt-5">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-counter text-white fw-bold h4" data-target="50000">0</div>
+                                <div class="small text-white-50">Active Students</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-counter text-white fw-bold h4" data-target="1500">0</div>
+                                <div class="small text-white-50">Mock Tests</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-counter text-white fw-bold h4" data-target="98">0</div>
+                                <div class="small text-white-50">Success Rate %</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image text-center">
+                    <div class="floating-elements">
+                        <div class="floating-card card-1">
+                            <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                            <div class="mt-2">
+                                <div class="fw-bold">50K+</div>
+                                <small>Students</small>
+                            </div>
+                        </div>
+                        <div class="floating-card card-2">
+                            <i class="fas fa-trophy fa-2x text-warning"></i>
+                            <div class="mt-2">
+                                <div class="fw-bold">98%</div>
+                                <small>Success Rate</small>
+                            </div>
+                        </div>
+                        <div class="floating-card card-3">
+                            <i class="fas fa-book fa-2x text-success"></i>
+                            <div class="mt-2">
+                                <div class="fw-bold">1000+</div>
+                                <small>Mock Tests</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-main-icon">
+                        <i class="fas fa-brain display-1 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Live Demo Section -->
+<section class="py-5 bg-dark text-white position-relative">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold mb-4">Experience FLUX Classroom Live</h2>
+                <p class="lead mb-4">Join thousands of students in our interactive virtual classrooms with real-time quizzes, polls, and collaborative learning.</p>
+                <div class="demo-features">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="demo-icon bg-primary rounded-circle me-3">
+                            <i class="fas fa-bolt text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Real-time Interaction</h6>
+                            <small class="text-muted">Instant polls, quizzes, and Q&A sessions</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="demo-icon bg-success rounded-circle me-3">
+                            <i class="fas fa-chart-line text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Live Analytics</h6>
+                            <small class="text-muted">Track your performance in real-time</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="demo-icon bg-warning rounded-circle me-3">
+                            <i class="fas fa-users text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Collaborative Learning</h6>
+                            <small class="text-muted">Learn together with peer interactions</small>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-lg mt-3" onclick="startLiveDemo()">
+                    <i class="fas fa-play me-2"></i>Watch Live Demo
+                </button>
+            </div>
+            <div class="col-lg-6">
+                <div class="demo-mockup position-relative">
+                    <div class="mockup-screen bg-light rounded shadow-lg p-4">
+                        <div class="mockup-header d-flex align-items-center mb-3">
+                            <div class="mockup-dots">
+                                <span class="dot bg-danger"></span>
+                                <span class="dot bg-warning"></span>
+                                <span class="dot bg-success"></span>
+                            </div>
+                            <div class="mockup-title text-dark fw-bold ms-3">FLUX Classroom - Live Session</div>
+                        </div>
+                        <div class="mockup-content">
+                            <div class="live-indicator bg-danger text-white px-2 py-1 rounded mb-3">
+                                <i class="fas fa-circle me-1 blink"></i>LIVE
+                            </div>
+                            <div class="quiz-question bg-primary text-white p-3 rounded mb-3">
+                                <h6>What is the derivative of x²?</h6>
+                                <div class="options mt-2">
+                                    <div class="option bg-white text-dark p-2 rounded mb-1">A) 2x</div>
+                                    <div class="option bg-white text-dark p-2 rounded mb-1">B) x</div>
+                                    <div class="option bg-white text-dark p-2 rounded">C) 2</div>
+                                </div>
+                            </div>
+                            <div class="participants-count text-dark">
+                                <i class="fas fa-users me-2"></i>1,247 students participating
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Exam Categories Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Prepare for Top Competitive Exams</h2>
+                <p class="lead text-muted">Comprehensive preparation for India's most prestigious examinations</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="exam-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="exam-icon bg-gradient-primary text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-calculator fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-primary">JEE Main</h4>
+                        <p class="text-muted mb-3">Mathematics, Physics, Chemistry</p>
+                        <div class="exam-stats">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="fw-bold text-primary">15+</div>
+                                    <small class="text-muted">Mock Tests</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">95%</div>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('test_series') }}" class="btn btn-outline-primary mt-3">
+                            <i class="fas fa-play me-2"></i>Start Practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="exam-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="exam-icon bg-gradient-success text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-microscope fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-success">NEET</h4>
+                        <p class="text-muted mb-3">Biology, Chemistry, Physics</p>
+                        <div class="exam-stats">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">12+</div>
+                                    <small class="text-muted">Mock Tests</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">92%</div>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('test_series') }}" class="btn btn-outline-success mt-3">
+                            <i class="fas fa-play me-2"></i>Start Practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="exam-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="exam-icon bg-gradient-warning text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-briefcase fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-warning">CAT</h4>
+                        <p class="text-muted mb-3">Quantitative, Verbal, Logical</p>
+                        <div class="exam-stats">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="fw-bold text-warning">10+</div>
+                                    <small class="text-muted">Mock Tests</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">88%</div>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('test_series') }}" class="btn btn-outline-warning mt-3">
+                            <i class="fas fa-play me-2"></i>Start Practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="exam-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="exam-icon bg-gradient-info text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-university fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-info">UPSC</h4>
+                        <p class="text-muted mb-3">General Studies, Optional</p>
+                        <div class="exam-stats">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="fw-bold text-info">8+</div>
+                                    <small class="text-muted">Mock Tests</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">85%</div>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('test_series') }}" class="btn btn-outline-info mt-3">
+                            <i class="fas fa-play me-2"></i>Start Practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Second Row of Exam Categories -->
+            <div class="col-lg-3 col-md-6">
+                <div class="exam-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="exam-icon bg-gradient-danger text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-balance-scale fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-danger">CLAT</h4>
+                        <p class="text-muted mb-3">Legal Reasoning, English, GK</p>
+                        <div class="exam-stats">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="fw-bold text-danger">8+</div>
+                                    <small class="text-muted">Mock Tests</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">90%</div>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('test_series') }}" class="btn btn-outline-danger mt-3">
+                            <i class="fas fa-play me-2"></i>Start Practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="exam-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="exam-icon bg-gradient-secondary text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-laptop-code fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-secondary">GATE</h4>
+                        <p class="text-muted mb-3">Engineering & Technology</p>
+                        <div class="exam-stats">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="fw-bold text-secondary">20+</div>
+                                    <small class="text-muted">Mock Tests</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">87%</div>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('test_series') }}" class="btn btn-outline-secondary mt-3">
+                            <i class="fas fa-play me-2"></i>Start Practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="exam-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="exam-icon bg-gradient-dark text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-stethoscope fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">AIIMS</h4>
+                        <p class="text-muted mb-3">Medical Entrance Exam</p>
+                        <div class="exam-stats">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="fw-bold text-dark">10+</div>
+                                    <small class="text-muted">Mock Tests</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">94%</div>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('test_series') }}" class="btn btn-outline-dark mt-3">
+                            <i class="fas fa-play me-2"></i>Start Practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="exam-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="exam-icon bg-gradient-purple text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-chart-bar fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold text-purple">XAT</h4>
+                        <p class="text-muted mb-3">Management Entrance</p>
+                        <div class="exam-stats">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="fw-bold text-purple">6+</div>
+                                    <small class="text-muted">Mock Tests</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="fw-bold text-success">86%</div>
+                                    <small class="text-muted">Success Rate</small>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('test_series') }}" class="btn btn-outline-purple mt-3">
+                            <i class="fas fa-play me-2"></i>Start Practice
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- View All Exams Button -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="{{ url_for('test_series') }}" class="btn btn-primary btn-lg px-5 py-3">
+                    <i class="fas fa-th-large me-2"></i>View All Exams
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Why Choose EduSphere?</h2>
+                <p class="lead text-muted">Everything you need to ace your competitive exams</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-primary text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-video fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Live Classes</h4>
+                        <p class="text-muted">Interactive live sessions with expert faculty, real-time doubt solving, and collaborative learning environment.</p>
+                        <div class="feature-highlights">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>HD Video Quality</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Interactive Whiteboard</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Recording Available</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-success text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-bolt fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">FLUX Classroom</h4>
+                        <p class="text-muted">Revolutionary interactive classroom with real-time quizzes, instant feedback, and gamified learning experience.</p>
+                        <div class="feature-highlights">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Real-time Quizzes</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Live Leaderboard</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Instant Feedback</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-warning text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-clipboard-check fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Test Series</h4>
+                        <p class="text-muted">Comprehensive mock tests designed by experts to simulate real exam conditions with detailed analytics.</p>
+                        <div class="feature-highlights">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>1000+ Questions</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Detailed Solutions</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Performance Analytics</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-info text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Smart Analytics</h4>
+                        <p class="text-muted">AI-powered performance tracking with personalized insights and recommendations for improvement.</p>
+                        <div class="feature-highlights">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Progress Tracking</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Weakness Analysis</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Study Recommendations</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-danger text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Expert Faculty</h4>
+                        <p class="text-muted">Learn from India's top educators with years of experience in competitive exam preparation.</p>
+                        <div class="feature-highlights">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>IIT/IIM Alumni</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>10+ Years Experience</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>24/7 Doubt Support</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-gradient-secondary text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-mobile-alt fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Mobile App</h4>
+                        <p class="text-muted">Study anywhere, anytime with our mobile app featuring offline content and seamless synchronization.</p>
+                        <div class="feature-highlights">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Offline Access</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Cross-platform Sync</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Push Notifications</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Statistics Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-users fa-3x"></i>
+                    </div>
+                    <div class="stat-number display-4 fw-bold mb-2" data-count="50000">0</div>
+                    <div class="stat-label h5">Happy Students</div>
+                    <p class="small opacity-75">Students trust EduSphere for their exam preparation</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-graduation-cap fa-3x"></i>
+                    </div>
+                    <div class="stat-number display-4 fw-bold mb-2" data-count="98">0</div>
+                    <div class="stat-label h5">Success Rate %</div>
+                    <p class="small opacity-75">Students achieve their target scores</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-book fa-3x"></i>
+                    </div>
+                    <div class="stat-number display-4 fw-bold mb-2" data-count="1000">0</div>
+                    <div class="stat-label h5">Mock Tests</div>
+                    <p class="small opacity-75">Comprehensive test series available</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-chalkboard-teacher fa-3x"></i>
+                    </div>
+                    <div class="stat-number display-4 fw-bold mb-2" data-count="500">0</div>
+                    <div class="stat-label h5">Expert Faculty</div>
+                    <p class="small opacity-75">Experienced teachers from top institutes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">What Our Students Say</h2>
+                <p class="lead text-muted">Success stories from our amazing students</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="testimonial-rating mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p class="testimonial-text mb-4">"EduSphere's FLUX Classroom made learning so interactive and fun. The real-time quizzes helped me stay engaged and the analytics showed exactly where I needed to improve."</p>
+                        <div class="testimonial-author d-flex align-items-center">
+                            <div class="author-avatar bg-primary text-white rounded-circle me-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Priya Sharma</div>
+                                <small class="text-muted">JEE Main AIR 245</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="testimonial-rating mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p class="testimonial-text mb-4">"The test series were incredibly comprehensive and closely matched the actual NEET pattern. The detailed solutions and explanations helped me understand concepts better."</p>
+                        <div class="testimonial-author d-flex align-items-center">
+                            <div class="author-avatar bg-success text-white rounded-circle me-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Rahul Kumar</div>
+                                <small class="text-muted">NEET AIR 156</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="testimonial-rating mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p class="testimonial-text mb-4">"The live classes with interactive whiteboard and the ability to ask questions in real-time made all the difference. Got into IIM Ahmedabad!"</p>
+                        <div class="testimonial-author d-flex align-items-center">
+                            <div class="author-avatar bg-warning text-white rounded-circle me-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Anita Patel</div>
+                                <small class="text-muted">CAT 99.8 Percentile</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!-- CTA
+ Section -->
+<section class="py-5 bg-gradient-success text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold mb-3">Ready to Transform Your Learning Journey?</h2>
+                <p class="lead mb-4">Join thousands of successful students who chose EduSphere for their competitive exam preparation. Start your free trial today!</p>
+                <div class="cta-features">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>Free 7-day trial</span>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>No credit card required</span>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>Cancel anytime</span>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>24/7 support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5 py-3 mb-3 d-block">
+                        <i class="fas fa-rocket me-2"></i>Start Free Trial
+                    </a>
+                    <p class="small opacity-75">Already have an account? <a href="{{ url_for('login') }}" class="text-white fw-bold">Login here</a></p>
+                {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-lg px-5 py-3 mb-3 d-block">
+                        <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-brand mb-4">
+                    <h3 class="fw-bold">
+                        <i class="fas fa-graduation-cap me-2 text-primary"></i>EduSphere
+                    </h3>
+                    <p class="text-muted">India's leading platform for competitive exam preparation with innovative learning solutions.</p>
+                </div>
+                <div class="footer-social">
+                    <a href="https://facebook.com/EduSphere" target="_blank" class="btn btn-outline-light btn-sm" title="Follow us on Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://twitter.com/EduSphere" target="_blank" class="btn btn-outline-light btn-sm" title="Follow us on Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://instagram.com/EduSphere" target="_blank" class="btn btn-outline-light btn-sm" title="Follow us on Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://youtube.com/EduSphere" target="_blank" class="btn btn-outline-light btn-sm" title="Subscribe to our YouTube channel">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://linkedin.com/company/EduSphere" target="_blank" class="btn btn-outline-light btn-sm" title="Connect with us on LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-6">
+                <h5 class="fw-bold mb-3">Exams</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="{{ url_for('test_series') }}" class="text-muted">JEE Main</a></li>
+                    <li><a href="{{ url_for('test_series') }}" class="text-muted">NEET</a></li>
+                    <li><a href="{{ url_for('test_series') }}" class="text-muted">CAT</a></li>
+                    <li><a href="{{ url_for('test_series') }}" class="text-muted">UPSC</a></li>
+                    <li><a href="{{ url_for('test_series') }}" class="text-muted">All Exams</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-2 col-md-6">
+                <h5 class="fw-bold mb-3">Features</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="{{ url_for('live_classes') }}" class="text-muted">Live Classes</a></li>
+                    <li><a href="{{ url_for('flux_classroom') }}" class="text-muted">FLUX Classroom</a></li>
+                    <li><a href="{{ url_for('test_series') }}" class="text-muted">Test Series</a></li>
+                    <li><a href="{{ url_for('courses') }}" class="text-muted">Courses</a></li>
+                    <li><a href="#" class="text-muted">Analytics</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-2 col-md-6">
+                <h5 class="fw-bold mb-3">Company</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#" class="text-muted">About Us</a></li>
+                    <li><a href="#" class="text-muted">Careers</a></li>
+                    <li><a href="#" class="text-muted">Contact</a></li>
+                    <li><a href="#" class="text-muted">Blog</a></li>
+                    <li><a href="#" class="text-muted">Help Center</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-2 col-md-6">
+                <h5 class="fw-bold mb-3">Legal</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#" class="text-muted">Privacy Policy</a></li>
+                    <li><a href="#" class="text-muted">Terms of Service</a></li>
+                    <li><a href="#" class="text-muted">Cookie Policy</a></li>
+                    <li><a href="#" class="text-muted">Refund Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr class="my-4 border-secondary">
+        
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="text-muted mb-0">&copy; 2024 EduSphere. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="text-muted mb-0">Made with <i class="fas fa-heart text-danger"></i> in India</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Animated Counter
+function animateCounter(element, target) {
+    let current = 0;
+    const increment = target / 100;
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            current = target;
+            clearInterval(timer);
+        }
+        element.textContent = Math.floor(current).toLocaleString();
+    }, 20);
+}
+
+// Initialize counters when in viewport
+const observerOptions = {
+    threshold: 0.5,
+    rootMargin: '0px 0px -100px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const target = parseInt(entry.target.dataset.count);
+            animateCounter(entry.target, target);
+            observer.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+// Observe all stat numbers
+document.querySelectorAll('.stat-number').forEach(el => {
+    observer.observe(el);
+});
+
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Add scroll effect to navbar
+window.addEventListener('scroll', () => {
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        if (window.scrollY > 100) {
+            navbar.classList.add('navbar-scrolled');
+        } else {
+            navbar.classList.remove('navbar-scrolled');
+        }
+    }
+});
+
+// Enhanced Home Page JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Observe stat counters in hero section
+    document.querySelectorAll('.stat-counter').forEach(el => {
+        observer.observe(el);
+    });
+    
+    // Live Demo Function
+    window.startLiveDemo = function() {
+        // Create modal for demo
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-play-circle me-2"></i>FLUX Classroom Live Demo
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="demo-video-container text-center">
+                            <div class="demo-placeholder bg-dark text-white p-5 rounded">
+                                <i class="fas fa-video fa-4x mb-3"></i>
+                                <h4>Interactive Demo Coming Soon!</h4>
+                                <p class="lead">Experience our revolutionary FLUX Classroom with:</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Real-time quizzes and polls</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Live performance tracking</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Interactive whiteboard</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Collaborative learning tools</li>
+                                </ul>
+                                <button class="btn btn-primary mt-3" onclick="joinLiveSession()">
+                                    <i class="fas fa-bolt me-2"></i>Join Live Session
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        
+        // Remove modal after hiding
+        modal.addEventListener('hidden.bs.modal', () => {
+            modal.remove();
+        });
+    };
+    
+    // Join Live Session Function
+    window.joinLiveSession = function() {
+        {% if current_user.is_authenticated %}
+            window.location.href = "{{ url_for('flux_classroom') }}";
+        {% else %}
+            showNotification('Login Required', 'Please login to join live sessions', 'info');
+            setTimeout(() => {
+                window.location.href = "{{ url_for('login') }}";
+            }, 2000);
+        {% endif %}
+    };
+    
+    // Simple scroll effect for navbar only
+    
+    // Simplified effects for better performance
+});
+</script>
+{% endblock %}

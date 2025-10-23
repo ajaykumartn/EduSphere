@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz[1] }} - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Quiz Header -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h2 class="fw-bold mb-2">{{ quiz[1] }}</h2>
+                    <p class="text-muted mb-3">{{ quiz[2] or 'Complete all questions to finish the quiz' }}</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="border-end">
+                                <h5 class="text-primary mb-0">{{ questions|length }}</h5>
+                                <small class="text-muted">Questions</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border-end">
+                                <h5 class="text-warning mb-0" id="timeDisplay">{{ quiz[3] }}s</h5>
+                                <small class="text-muted">Per Question</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="text-success mb-0" id="progressDisplay">0/{{ questions|length }}</h5>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="card mb-4">
+                <div class="card-body p-2">
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quiz Questions -->
+            <div id="quizContainer">
+                {% for question in questions %}
+                <div class="card question-card mb-4" id="question-{{ loop.index0 }}" 
+                     style="display: {{ 'block' if loop.first else 'none' }}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Question {{ loop.index }} of {{ questions|length }}</h5>
+                        <div class="timer-display">
+                            <span class="badge bg-warning" id="timer-{{ loop.index0 }}">{{ quiz[3] }}s</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="mb-4">{{ question[1] }}</h6>
+                        <div class="options">
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100 text-start option-btn" 
+                                        data-question="{{ question[0] }}" data-answer="A">
+                                    <strong>A)</strong> {{ question[2] }}
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100 text-start option-btn" 
+                                        data-question="{{ question[0] }}" data-answer="B">
+                                    <strong>B)</strong> {{ question[3] }}
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100 text-start option-btn" 
+                                        data-question="{{ question[0] }}" data-answer="C">
+                                    <strong>C)</strong> {{ question[4] }}
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100 text-start option-btn" 
+                                        data-question="{{ question[0] }}" data-answer="D">
+                                    <strong>D)</strong> {{ question[5] }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button class="btn btn-secondary" id="prevBtn-{{ loop.index0 }}" 
+                                    onclick="previousQuestion({{ loop.index0 }})" 
+                                    {{ 'disabled' if loop.first else '' }}>
+                                <i class="fas fa-arrow-left me-2"></i>Previous
+                            </button>
+                            <button class="btn btn-primary" id="nextBtn-{{ loop.index0 }}" 
+                                    onclick="nextQuestion({{ loop.index0 }})" disabled>
+                                {% if loop.last %}
+                                    <i class="fas fa-check me-2"></i>Finish Quiz
+                                {% else %}
+                                    Next<i class="fas fa-arrow-right ms-2"></i>
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quiz Complete Modal -->
+<div class="modal fade" id="quizCompleteModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quiz Completed!</h5>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h4>Congratulations!</h4>
+                <p>You have successfully completed the quiz.</p>
+                <div id="scoreDisplay" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="viewResults()">
+                    <i class="fas fa-chart-bar me-2"></i>View Results
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentQuestion = 0;
+let totalQuestions = {{ questions|length }};
+let timeLimit = {{ quiz[3] }};
+let attemptId = {{ attempt_id }};
+let answers = {};
+let timers = {};
+
+// Initialize quiz
+document.addEventListener('DOMContentLoaded', function() {
+    startTimer(0);
+    
+    // Add click handlers for options
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectAnswer(this);
+        });
+    });
+});
+
+function selectAnswer(button) {
+    const questionId = button.dataset.question;
+    const answer = button.dataset.answer;
+    const questionIndex = currentQuestion;
+    
+    // Clear previous selection
+    document.querySelectorAll(`#question-${questionIndex} .option-btn`).forEach(btn => {
+        btn.classList.remove('btn-success', 'btn-primary');
+        btn.classList.add('btn-outline-primary');
+    });
+    
+    // Mark selected
+    button.classList.remove('btn-outline-primary');
+    button.classList.add('btn-success');
+    
+    // Save answer
+    answers[questionId] = answer;
+    
+    // Submit answer to server
+    fetch('/submit-quiz-answer', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            attempt_id: attemptId,
+            question_id: parseInt(questionId),
+            selected_answer: answer
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Enable next button
+            document.getElementById(`nextBtn-${questionIndex}`).disabled = false;
+            updateProgress();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function nextQuestion(current) {
+    if (current === totalQuestions - 1) {
+        // Last question - complete quiz
+        completeQuiz();
+        return;
+    }
+    
+    // Stop current timer
+    clearInterval(timers[current]);
+    
+    // Hide current question
+    document.getElementById(`question-${current}`).style.display = 'none';
+    
+    // Show next question
+    currentQuestion = current + 1;
+    document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+    
+    // Start timer for next question
+    startTimer(currentQuestion);
+}
+
+function previousQuestion(current) {
+    if (current === 0) return;
+    
+    // Stop current timer
+    clearInterval(timers[current]);
+    
+    // Hide current question
+    document.getElementById(`question-${current}`).style.display = 'none';
+    
+    // Show previous question
+    currentQuestion = current - 1;
+    document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+    
+    // Start timer for previous question
+    startTimer(currentQuestion);
+}
+
+function startTimer(questionIndex) {
+    let timeLeft = timeLimit;
+    const timerElement = document.getElementById(`timer-${questionIndex}`);
+    
+    timers[questionIndex] = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft + 's';
+        
+        if (timeLeft <= 10) {
+            timerElement.classList.remove('bg-warning');
+            timerElement.classList.add('bg-danger');
+        }
+        
+        if (timeLeft <= 0) {
+            clearInterval(timers[questionIndex]);
+            // Auto-advance to next question
+            if (questionIndex < totalQuestions - 1) {
+                nextQuestion(questionIndex);
+            } else {
+                completeQuiz();
+            }
+        }
+    }, 1000);
+}
+
+function updateProgress() {
+    const answered = Object.keys(answers).length;
+    const percentage = (answered / totalQuestions) * 100;
+    
+    document.getElementById('progressBar').style.width = percentage + '%';
+    document.getElementById('progressDisplay').textContent = `${answered}/${totalQuestions}`;
+}
+
+function completeQuiz() {
+    // Stop all timers
+    Object.values(timers).forEach(timer => clearInterval(timer));
+    
+    // Submit quiz completion
+    fetch(`/complete-quiz/${attemptId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show completion modal
+            document.getElementById('scoreDisplay').innerHTML = `
+                <h3 class="text-primary">Score: ${data.score}/${data.total}</h3>
+                <p class="text-muted">Percentage: ${Math.round((data.score/data.total)*100)}%</p>
+            `;
+            new bootstrap.Modal(document.getElementById('quizCompleteModal')).show();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function viewResults() {
+    window.location.href = `/quiz-result/${attemptId}`;
+}
+
+// Prevent page refresh/back during quiz
+window.addEventListener('beforeunload', function(e) {
+    e.preventDefault();
+    e.returnValue = '';
+});
+</script>
+{% endblock %}

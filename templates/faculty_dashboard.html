@@ -1,0 +1,1134 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Dashboard - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="welcome-header bg-gradient-success text-white p-4 rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="fw-bold mb-1">Welcome, Prof. {{ current_user.full_name or current_user.username }}!</h1>
+                        <p class="mb-0 opacity-75">Manage your classes and track student progress</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="badge bg-light text-success fs-6 px-3 py-2">
+                            <i class="fas fa-chalkboard-teacher me-1"></i>Faculty
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Students</h6>
+                            <h2 class="mb-0">{{ total_students }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Sessions Conducted</h6>
+                            <h2 class="mb-0">{{ total_sessions }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chalkboard fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Active Sessions</h6>
+                            <h2 class="mb-0">{{ sessions|selectattr('3', 'equalto', 1)|list|length }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-broadcast-tower fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Avg. Attendance</h6>
+                            <h2 class="mb-0">85%</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('flux_teacher') }}" class="btn btn-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-plus fa-2x mb-2"></i>
+                                <span>Create FLUX Session</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('create_quiz') }}" class="btn btn-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-question-circle fa-2x mb-2"></i>
+                                <span>Create Quiz</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('faculty_analytics') }}" class="btn btn-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                                <span>View Analytics</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('manage_students') }}" class="btn btn-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-users fa-2x mb-2"></i>
+                                <span>Manage Students</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-2">
+                            <a href="{{ url_for('live_classes') }}" class="btn btn-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-video fa-2x mb-2"></i>
+                                <span>Live Classes</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('faculty_gradebook') }}" class="btn btn-purple w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                                <span>Gradebook</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('faculty_attendance') }}" class="btn btn-dark w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-user-check fa-2x mb-2"></i>
+                                <span>Attendance</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('faculty_assignments') }}" class="btn btn-gradient w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-tasks fa-2x mb-2"></i>
+                                <span>Assignments</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('faculty_announcements') }}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-bullhorn fa-2x mb-2"></i>
+                                <span>Announcements</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('faculty_resources') }}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-folder-open fa-2x mb-2"></i>
+                                <span>Resources</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Sessions -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Sessions
+                    </h5>
+                    <a href="{{ url_for('flux_teacher') }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus me-1"></i>New Session
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if sessions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Session Code</th>
+                                        <th>Title</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for session in sessions %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-primary">{{ session[1] }}</span>
+                                        </td>
+                                        <td>{{ session[2] }}</td>
+                                        <td>
+                                            {% if session[3] %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Ended</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ session[4] | dateformat('%b %d, %Y') }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('session_details', session_id=session[0]) }}" 
+                                                   class="btn btn-outline-primary" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ url_for('session_analytics', session_id=session[0]) }}" 
+                                                   class="btn btn-outline-info" title="Analytics">
+                                                    <i class="fas fa-chart-bar"></i>
+                                                </a>
+                                                {% if session[3] %}
+                                                <button class="btn btn-outline-danger" 
+                                                        onclick="endSession({{ session[0] }})" title="End Session">
+                                                    <i class="fas fa-stop"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chalkboard fa-3x text-muted mb-3"></i>
+                            <h5>No sessions created yet</h5>
+                            <p class="text-muted">Create your first FLUX session to get started</p>
+                            <a href="{{ url_for('flux_teacher') }}" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Create Session
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Quizzes -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-question-circle me-2"></i>My Quizzes
+                    </h5>
+                    <a href="{{ url_for('create_quiz') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i>New Quiz
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if quizzes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Quiz Code</th>
+                                        <th>Title</th>
+                                        <th>Status</th>
+                                        <th>Attempts</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for quiz in quizzes %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-info">{{ quiz[2] }}</span>
+                                        </td>
+                                        <td>{{ quiz[1] }}</td>
+                                        <td>
+                                            {% if quiz[3] %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ quiz[5] }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('edit_quiz', quiz_id=quiz[0]) }}" 
+                                                   class="btn btn-outline-primary" title="Edit Quiz">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button class="btn btn-outline-info" title="View Results">
+                                                    <i class="fas fa-chart-bar"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+                            <h5>No quizzes created yet</h5>
+                            <p class="text-muted">Create your first quiz to get started</p>
+                            <a href="{{ url_for('create_quiz') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Quiz
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <!-- Faculty Schedule -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>My Schedule
+                    </h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-success" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addFacultyScheduleModal">
+                                <i class="fas fa-plus me-2"></i>Add Schedule
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportSchedule()">
+                                <i class="fas fa-download me-2"></i>Export Schedule
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="syncCalendar()">
+                                <i class="fas fa-sync me-2"></i>Sync Calendar
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="facultyScheduleList">
+                        <!-- Schedule items will be loaded here -->
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar-plus fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No scheduled items</p>
+                            <button class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#addFacultyScheduleModal">
+                                <i class="fas fa-plus me-1"></i>Add Schedule
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Engagement -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2"></i>Student Engagement
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Active Participation</small>
+                            <small>85%</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Assignment Submission</small>
+                            <small>78%</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-info" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Class Attendance</small>
+                            <small>92%</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary w-100" onclick="viewDetailedEngagement()">
+                        <i class="fas fa-chart-bar me-1"></i>View Details
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Actions Panel -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Tools
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="createInstantPoll()">
+                            <i class="fas fa-poll me-2"></i>Create Instant Poll
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="sendQuickMessage()">
+                            <i class="fas fa-comment me-2"></i>Send Quick Message
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="markAttendance()">
+                            <i class="fas fa-check-circle me-2"></i>Mark Attendance
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="shareScreen()">
+                            <i class="fas fa-desktop me-2"></i>Share Screen
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="generateReport()">
+                            <i class="fas fa-file-alt me-2"></i>Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Performance -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Session Performance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if session_stats %}
+                        {% for stat in session_stats %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <div class="fw-bold small">{{ stat[0] }}</div>
+                                <div class="text-muted small">{{ stat[1] }} responses</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-success">{{ "%.1f"|format(stat[2] or 0) }}%</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-chart-line fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No session data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Teaching Overview Chart -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Teaching Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="teachingChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Faculty Schedule Modal -->
+<div class="modal fade" id="addFacultyScheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus me-2"></i>Add to Schedule
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addFacultyScheduleForm">
+                    <div class="mb-3">
+                        <label for="faculty_schedule_title" class="form-label fw-bold">Title</label>
+                        <input type="text" class="form-control" id="faculty_schedule_title" 
+                               name="title" placeholder="Enter schedule title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="faculty_schedule_type" class="form-label fw-bold">Type</label>
+                        <select class="form-select" id="faculty_schedule_type" name="type" required>
+                            <option value="">Select type</option>
+                            <option value="class">Live Class</option>
+                            <option value="meeting">Faculty Meeting</option>
+                            <option value="exam">Exam/Test</option>
+                            <option value="preparation">Class Preparation</option>
+                            <option value="grading">Grading Session</option>
+                            <option value="office_hours">Office Hours</option>
+                            <option value="reminder">Reminder</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="faculty_schedule_datetime" class="form-label fw-bold">Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="faculty_schedule_datetime" 
+                               name="datetime" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="faculty_schedule_description" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="faculty_schedule_description" name="description" 
+                                  rows="3" placeholder="Enter description (optional)"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="faculty_schedule_priority" class="form-label fw-bold">Priority</label>
+                        <select class="form-select" id="faculty_schedule_priority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addFacultyScheduleItem()">
+                    <i class="fas fa-plus me-2"></i>Add Schedule
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gradebook Modal -->
+<div class="modal fade" id="gradebookModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-clipboard-list me-2"></i>Gradebook
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="gradebookContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Modal -->
+<div class="modal fade" id="attendanceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-check me-2"></i>Attendance Tracker
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="attendanceContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assignments Modal -->
+<div class="modal fade" id="assignmentsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-tasks me-2"></i>Assignment Manager
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div></div>
+                    <button class="btn btn-primary btn-sm" onclick="createNewAssignment()">
+                        <i class="fas fa-plus me-1"></i>New Assignment
+                    </button>
+                </div>
+                <div id="assignmentsContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Announcements Modal -->
+<div class="modal fade" id="announcementsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-bullhorn me-2"></i>Announcement Center
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div></div>
+                    <button class="btn btn-primary btn-sm" onclick="createNewAnnouncement()">
+                        <i class="fas fa-plus me-1"></i>New Announcement
+                    </button>
+                </div>
+                <div id="announcementsContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resources Modal -->
+<div class="modal fade" id="resourcesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-folder-open me-2"></i>Resource Library
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div></div>
+                    <button class="btn btn-primary btn-sm" onclick="uploadNewResource()">
+                        <i class="fas fa-upload me-1"></i>Upload Resource
+                    </button>
+                </div>
+                <div id="resourcesContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Teaching Overview Chart
+    const ctx = document.getElementById('teachingChart').getContext('2d');
+    const teachingChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Active Sessions', 'Completed Sessions', 'Scheduled'],
+            datasets: [{
+                data: [{{ sessions|selectattr('3', 'equalto', 1)|list|length }}, {{ total_sessions - sessions|selectattr('3', 'equalto', 1)|list|length }}, 2],
+                backgroundColor: ['#28a745', '#6c757d', '#ffc107'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+
+<script>
+function endSession(sessionId) {
+    if (confirm('Are you sure you want to end this session? This action cannot be undone.')) {
+        fetch(`/end-session/${sessionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while ending the session');
+        });
+    }
+}
+
+// Faculty Schedule functionality
+let facultyScheduleItems = JSON.parse(localStorage.getItem('facultySchedule')) || [];
+
+function loadFacultySchedule() {
+    const scheduleList = document.getElementById('facultyScheduleList');
+    
+    if (facultyScheduleItems.length === 0) {
+        scheduleList.innerHTML = `
+            <div class="text-center py-3">
+                <i class="fas fa-calendar-plus fa-2x text-muted mb-2"></i>
+                <p class="text-muted small mb-0">No scheduled items</p>
+                <button class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#addFacultyScheduleModal">
+                    <i class="fas fa-plus me-1"></i>Add Schedule
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort by datetime
+    facultyScheduleItems.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+    
+    let html = '';
+    const now = new Date();
+    
+    facultyScheduleItems.forEach((item, index) => {
+        const itemDate = new Date(item.datetime);
+        const isOverdue = itemDate < now;
+        const isToday = itemDate.toDateString() === now.toDateString();
+        
+        const priorityColors = {
+            low: 'secondary',
+            medium: 'warning',
+            high: 'danger'
+        };
+        
+        const typeIcons = {
+            class: 'fas fa-video',
+            meeting: 'fas fa-users',
+            exam: 'fas fa-clipboard-check',
+            preparation: 'fas fa-book',
+            grading: 'fas fa-edit',
+            office_hours: 'fas fa-door-open',
+            reminder: 'fas fa-bell'
+        };
+        
+        html += `
+            <div class="schedule-item border-start border-3 border-${priorityColors[item.priority]} p-3 mb-3 bg-light rounded-end ${isOverdue ? 'opacity-75' : ''}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="${typeIcons[item.type]} me-2 text-${priorityColors[item.priority]}"></i>
+                            <h6 class="mb-0 ${isOverdue ? 'text-muted text-decoration-line-through' : ''}">${item.title}</h6>
+                        </div>
+                        <div class="small text-muted mb-1">
+                            <i class="fas fa-clock me-1"></i>
+                            ${formatDateTime(item.datetime)}
+                            ${isToday ? '<span class="badge bg-success ms-2">Today</span>' : ''}
+                            ${isOverdue ? '<span class="badge bg-danger ms-2">Overdue</span>' : ''}
+                        </div>
+                        ${item.description ? `<p class="small mb-0 text-muted">${item.description}</p>` : ''}
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="editFacultyScheduleItem(${index})">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="deleteFacultyScheduleItem(${index})">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    scheduleList.innerHTML = html;
+}
+
+function addFacultyScheduleItem() {
+    const form = document.getElementById('addFacultyScheduleForm');
+    const formData = new FormData(form);
+    
+    const newItem = {
+        id: Date.now(),
+        title: formData.get('title'),
+        type: formData.get('type'),
+        datetime: formData.get('datetime'),
+        description: formData.get('description'),
+        priority: formData.get('priority'),
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+    
+    if (!newItem.title || !newItem.type || !newItem.datetime) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    facultyScheduleItems.push(newItem);
+    localStorage.setItem('facultySchedule', JSON.stringify(facultyScheduleItems));
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addFacultyScheduleModal'));
+    modal.hide();
+    form.reset();
+    
+    // Reload schedule
+    loadFacultySchedule();
+    
+    // Show success message
+    showFacultyNotification('Schedule item added successfully!', 'success');
+}
+
+function deleteFacultyScheduleItem(index) {
+    if (confirm('Are you sure you want to delete this schedule item?')) {
+        facultyScheduleItems.splice(index, 1);
+        localStorage.setItem('facultySchedule', JSON.stringify(facultyScheduleItems));
+        loadFacultySchedule();
+        showFacultyNotification('Schedule item deleted!', 'info');
+    }
+}
+
+function editFacultyScheduleItem(index) {
+    const item = facultyScheduleItems[index];
+    
+    // Fill form with existing data
+    document.getElementById('faculty_schedule_title').value = item.title;
+    document.getElementById('faculty_schedule_type').value = item.type;
+    document.getElementById('faculty_schedule_datetime').value = item.datetime;
+    document.getElementById('faculty_schedule_description').value = item.description || '';
+    document.getElementById('faculty_schedule_priority').value = item.priority;
+    
+    // Change button text and function
+    const addBtn = document.querySelector('#addFacultyScheduleModal .btn-success');
+    addBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Schedule';
+    addBtn.onclick = function() { updateFacultyScheduleItem(index); };
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('addFacultyScheduleModal'));
+    modal.show();
+}
+
+function updateFacultyScheduleItem(index) {
+    const form = document.getElementById('addFacultyScheduleForm');
+    const formData = new FormData(form);
+    
+    facultyScheduleItems[index] = {
+        ...facultyScheduleItems[index],
+        title: formData.get('title'),
+        type: formData.get('type'),
+        datetime: formData.get('datetime'),
+        description: formData.get('description'),
+        priority: formData.get('priority')
+    };
+    
+    localStorage.setItem('facultySchedule', JSON.stringify(facultyScheduleItems));
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addFacultyScheduleModal'));
+    modal.hide();
+    form.reset();
+    
+    // Reset button
+    const addBtn = document.querySelector('#addFacultyScheduleModal .btn-success');
+    addBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Schedule';
+    addBtn.onclick = addFacultyScheduleItem;
+    
+    // Reload schedule
+    loadFacultySchedule();
+    
+    showFacultyNotification('Schedule item updated!', 'success');
+}
+
+function showFacultyNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 3000);
+}
+
+// Set minimum datetime to current time
+document.getElementById('faculty_schedule_datetime').min = new Date().toISOString().slice(0, 16);
+
+// Faculty dashboard enhanced functions
+function openGradebook() {
+    showFacultyNotification('Opening Gradebook...', 'info');
+    setTimeout(() => {
+        alert('Gradebook: Manage student grades, calculate averages, and generate grade reports.');
+    }, 500);
+}
+
+function openAttendanceTracker() {
+    showFacultyNotification('Opening Attendance Tracker...', 'info');
+    setTimeout(() => {
+        alert('Attendance Tracker: Mark attendance, view patterns, and generate attendance reports.');
+    }, 500);
+}
+
+function openAssignmentManager() {
+    showFacultyNotification('Opening Assignment Manager...', 'info');
+    setTimeout(() => {
+        alert('Assignment Manager: Create assignments, set deadlines, and track submissions.');
+    }, 500);
+}
+
+function openAnnouncementCenter() {
+    showFacultyNotification('Opening Announcement Center...', 'info');
+    setTimeout(() => {
+        alert('Announcement Center: Send announcements to students, schedule notifications.');
+    }, 500);
+}
+
+function openResourceLibrary() {
+    showFacultyNotification('Opening Resource Library...', 'info');
+    setTimeout(() => {
+        alert('Resource Library: Upload and manage course materials, videos, and documents.');
+    }, 500);
+}
+
+function exportSchedule() {
+    showFacultyNotification('Exporting schedule...', 'success');
+    // Simulate export
+    setTimeout(() => {
+        showFacultyNotification('Schedule exported successfully!', 'success');
+    }, 1500);
+}
+
+function syncCalendar() {
+    showFacultyNotification('Syncing with external calendar...', 'info');
+    setTimeout(() => {
+        showFacultyNotification('Calendar synced successfully!', 'success');
+    }, 2000);
+}
+
+function viewDetailedEngagement() {
+    showFacultyNotification('Loading detailed engagement analytics...', 'info');
+    setTimeout(() => {
+        alert('Detailed Engagement Analytics:\n\n' +
+              '• Most Active Students: Alice, Bob, Carol\n' +
+              '• Peak Engagement Time: 2:00 PM - 4:00 PM\n' +
+              '• Average Session Duration: 45 minutes\n' +
+              '• Question Response Rate: 78%\n' +
+              '• Discussion Participation: 65%');
+    }, 1000);
+}
+
+function createInstantPoll() {
+    const question = prompt('Enter your poll question:');
+    if (question) {
+        showFacultyNotification(`Poll "${question}" created and sent to students!`, 'success');
+    }
+}
+
+function sendQuickMessage() {
+    const message = prompt('Enter your message to students:');
+    if (message) {
+        showFacultyNotification('Message sent to all students!', 'success');
+    }
+}
+
+function markAttendance() {
+    showFacultyNotification('Opening attendance marking interface...', 'info');
+    setTimeout(() => {
+        alert('Attendance Interface: Mark present/absent for current session students.');
+    }, 500);
+}
+
+function shareScreen() {
+    showFacultyNotification('Initiating screen sharing...', 'info');
+    setTimeout(() => {
+        alert('Screen sharing would be initiated for live class participants.');
+    }, 1000);
+}
+
+function generateReport() {
+    const reportType = prompt('Select report type:\n1. Student Performance\n2. Attendance Summary\n3. Engagement Analytics\n4. Grade Distribution\n\nEnter number (1-4):');
+    
+    if (reportType >= 1 && reportType <= 4) {
+        const reports = ['Student Performance', 'Attendance Summary', 'Engagement Analytics', 'Grade Distribution'];
+        showFacultyNotification(`Generating ${reports[reportType-1]} report...`, 'info');
+        
+        setTimeout(() => {
+            showFacultyNotification(`${reports[reportType-1]} report generated successfully!`, 'success');
+        }, 2000);
+    }
+}
+
+// Enhanced notification system for faculty
+function showAdvancedFacultyNotification(title, message, type = 'info', actions = []) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed shadow-lg`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 350px; max-width: 400px;';
+    
+    let actionsHtml = '';
+    if (actions.length > 0) {
+        actionsHtml = '<div class="mt-2">';
+        actions.forEach(action => {
+            actionsHtml += `<button class="btn btn-sm btn-outline-${type} me-2" onclick="${action.onclick}">${action.text}</button>`;
+        });
+        actionsHtml += '</div>';
+    }
+    
+    notification.innerHTML = `
+        <div class="d-flex align-items-start">
+            <div class="flex-grow-1">
+                <strong>${title}</strong><br>
+                <small>${message}</small>
+                ${actionsHtml}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 8 seconds if no actions
+    if (actions.length === 0) {
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 8000);
+    }
+}
+
+// Faculty productivity features
+function showFacultyReminders() {
+    const reminders = [
+        { title: 'Class Reminder', message: 'Your next class starts in 15 minutes. Prepare your materials!' },
+        { title: 'Grading Reminder', message: 'You have 12 assignments pending review.' },
+        { title: 'Meeting Reminder', message: 'Faculty meeting scheduled for 3:00 PM today.' },
+        { title: 'Deadline Alert', message: 'Grade submission deadline is tomorrow.' }
+    ];
+    
+    // Show random reminder every 45 minutes
+    setInterval(() => {
+        if (Math.random() < 0.4) { // 40% chance
+            const reminder = reminders[Math.floor(Math.random() * reminders.length)];
+            showAdvancedFacultyNotification(reminder.title, reminder.message, 'warning');
+        }
+    }, 2700000); // 45 minutes
+}
+
+// Load faculty schedule on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadFacultySchedule();
+    showFacultyReminders();
+    
+
+    
+    // Reset modal when closed
+    document.getElementById('addFacultyScheduleModal').addEventListener('hidden.bs.modal', function() {
+        const form = document.getElementById('addFacultyScheduleForm');
+        form.reset();
+        
+        // Reset button
+        const addBtn = document.querySelector('#addFacultyScheduleModal .btn-success');
+        addBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Schedule';
+        addBtn.onclick = addFacultyScheduleItem;
+    });
+    
+    // Welcome message for faculty
+    const isFacultyNewUser = !localStorage.getItem('facultyHasVisited');
+    if (isFacultyNewUser) {
+        setTimeout(() => {
+            showAdvancedFacultyNotification(
+                'Welcome to Faculty Dashboard!', 
+                'Manage your classes, track student progress, and access teaching tools.',
+                'success',
+                [
+                    { text: 'Quick Tour', onclick: 'startFacultyTour()' },
+                    { text: 'Got it!', onclick: 'dismissFacultyWelcome()' }
+                ]
+            );
+        }, 2000);
+        localStorage.setItem('facultyHasVisited', 'true');
+    }
+});
+
+function startFacultyTour() {
+    showFacultyNotification('Starting faculty dashboard tour...', 'info');
+    // This would start an interactive tour
+}
+
+function dismissFacultyWelcome() {
+    // Close any open notifications
+    document.querySelectorAll('.alert').forEach(alert => {
+        if (alert.parentNode) alert.remove();
+    });
+}
+
+
+</script>
+{% endblock %}

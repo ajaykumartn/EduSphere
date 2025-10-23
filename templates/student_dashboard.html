@@ -1,0 +1,1040 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - EduSphere{% endblock %}
+
+{% block content %}
+<main class="container-fluid">
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="welcome-header bg-gradient-primary text-white p-4 rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="fw-bold mb-1">Welcome back, {{ current_user.full_name or current_user.username }}!</h1>
+                        <p class="mb-0 opacity-75">Continue your learning journey</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="badge bg-light text-primary fs-6 px-3 py-2">
+                            <i class="fas fa-user-graduate me-1"></i>Student
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100 interactive-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Enrolled Courses</h6>
+                            <h2 class="mb-0 metric-value text-white">{{ courses|length }}</h2>
+                            <div class="progress-realtime mt-2"></div>
+                        </div>
+                        <div class="align-self-center status-indicator">
+                            <i class="fas fa-book fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100 interactive-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Tests Taken</h6>
+                            <h2 class="mb-0 metric-value text-white">{{ tests_taken }}</h2>
+                            <div class="small opacity-75">
+                                <i class="fas fa-trending-up me-1"></i>+3 this week
+                            </div>
+                        </div>
+                        <div class="align-self-center status-indicator">
+                            <i class="fas fa-clipboard-check fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100 interactive-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Average Score</h6>
+                            <h2 class="mb-0 metric-value text-white">{{ avg_score }}%</h2>
+                            <div class="small opacity-75">
+                                <i class="fas fa-arrow-up me-1 text-success"></i>+5% improvement
+                            </div>
+                        </div>
+                        <div class="align-self-center status-indicator">
+                            <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100 interactive-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Study Streak</h6>
+                            <h2 class="mb-0 metric-value text-white">7</h2>
+                            <div class="small opacity-75">
+                                <i class="fas fa-calendar-check me-1"></i>Days in a row
+                            </div>
+                        </div>
+                        <div class="align-self-center status-indicator">
+                            <i class="fas fa-fire fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('flux_classroom') }}" class="btn btn-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-bolt fa-2x mb-2"></i>
+                                <span>Join FLUX Session</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('test_series') }}" class="btn btn-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-clipboard-check fa-2x mb-2"></i>
+                                <span>Test Series</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('courses') }}" class="btn btn-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-book fa-2x mb-2"></i>
+                                <span>Browse Courses</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3" 
+                                    data-bs-toggle="modal" data-bs-target="#takeQuizModal">
+                                <i class="fas fa-clipboard-question fa-2x mb-2"></i>
+                                <span>Take Quiz</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('live_classes') }}" class="btn btn-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-video fa-2x mb-2"></i>
+                                <span>Live Classes</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-purple w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3" onclick="openStudyPlanner()">
+                                <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                                <span>Study Planner</span>
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-dark w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3" onclick="openNotesApp()">
+                                <i class="fas fa-sticky-note fa-2x mb-2"></i>
+                                <span>My Notes</span>
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-gradient w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3" onclick="openProgressTracker()">
+                                <i class="fas fa-chart-line fa-2x mb-2"></i>
+                                <span>Progress</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- My Courses -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-book me-2"></i>My Enrolled Courses
+                    </h5>
+                    <a href="{{ url_for('courses') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i>Browse More
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if courses %}
+                        <div class="row g-3">
+                            {% for course in courses %}
+                            <div class="col-md-6">
+                                <div class="card border h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <div class="course-icon me-3">
+                                                <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="card-title">{{ course[1] }}</h6>
+                                                <p class="card-text text-muted small mb-2">{{ course[2] }}</p>
+                                                <div class="progress mb-2" style="height: 6px;">
+                                                    <div class="progress-bar bg-success" style="width: {{ range(20, 90) | random }}%"></div>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <a href="#" class="btn btn-sm btn-primary">Continue</a>
+                                                    <a href="{{ url_for('test_series') }}" class="btn btn-sm btn-outline-primary">Test</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                            <h5>No courses enrolled yet</h5>
+                            <p class="text-muted">Browse our course catalog to get started</p>
+                            <a href="{{ url_for('courses') }}" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Browse Courses
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- My Schedule -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>My Schedule
+                    </h5>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+                        <i class="fas fa-plus me-1"></i>Add
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="scheduleList">
+                        <!-- Schedule items will be loaded here -->
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar-plus fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No scheduled items</p>
+                            <button class="btn btn-sm btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+                                <i class="fas fa-plus me-1"></i>Add Schedule
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activity %}
+                        {% for activity in recent_activity %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="activity-icon me-3">
+                                {% if activity[2] %}
+                                    <i class="fas fa-check-circle text-success"></i>
+                                {% else %}
+                                    <i class="fas fa-times-circle text-danger"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold small">{{ activity[0] }}</div>
+                                <div class="text-muted small">{{ activity[1] | dateformat('%b %d, %Y') if activity[1] else 'Recently' }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-history fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No recent activity</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Real-time Study Tracker -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Today's Study Time
+                    </h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="setStudyGoal()">
+                                <i class="fas fa-target me-2"></i>Set Goal
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="viewStudyStats()">
+                                <i class="fas fa-chart-bar me-2"></i>View Stats
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="resetStudyTime()">
+                                <i class="fas fa-refresh me-2"></i>Reset Today
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-primary" id="todayStudyTime">0h 0m</span>
+                        <button class="btn btn-sm btn-success" onclick="startFocusSession()">
+                            <i class="fas fa-play me-1"></i>Focus Session
+                        </button>
+                    </div>
+                    <div class="progress mb-3" style="height: 12px;">
+                        <div class="progress-bar bg-gradient-primary" id="studyProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="small text-muted">Goal</div>
+                            <div class="fw-bold" id="dailyGoalDisplay">2h 30m</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="small text-muted">Completed</div>
+                            <div class="fw-bold" id="completedTime">0h 0m</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="small text-muted">Remaining</div>
+                            <div class="fw-bold" id="remainingTime">2h 30m</div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Weekly Average: 2h 15m</span>
+                            <span>Best Day: 3h 45m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Goals & Achievements -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>Achievements
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="achievement-badge text-center p-2 border rounded">
+                                <i class="fas fa-fire text-warning fa-2x"></i>
+                                <div class="small fw-bold">7 Day Streak</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="achievement-badge text-center p-2 border rounded">
+                                <i class="fas fa-medal text-success fa-2x"></i>
+                                <div class="small fw-bold">Top Scorer</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="achievement-badge text-center p-2 border rounded">
+                                <i class="fas fa-clock text-info fa-2x"></i>
+                                <div class="small fw-bold">100 Hours</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="achievement-badge text-center p-2 border rounded">
+                                <i class="fas fa-graduation-cap text-primary fa-2x"></i>
+                                <div class="small fw-bold">Course Master</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-warning" style="width: 75%"></div>
+                        </div>
+                        <div class="small text-muted mt-1">Next Achievement: 10 Day Streak (3 days to go)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Performance Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Take Quiz Modal -->
+<div class="modal fade" id="takeQuizModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-clipboard-question me-2"></i>Take Quiz
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="takeQuizForm">
+                    <div class="mb-3">
+                        <label for="quiz_code" class="form-label fw-bold">Quiz Code</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="fas fa-key"></i>
+                            </span>
+                            <input type="text" class="form-control text-uppercase" id="quiz_code" 
+                                   name="quiz_code" placeholder="Enter 6-digit quiz code" 
+                                   maxlength="6" required style="letter-spacing: 0.2em;">
+                        </div>
+                        <div class="form-text">Ask your teacher for the quiz code</div>
+                    </div>
+                </form>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Instructions:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Make sure you have a stable internet connection</li>
+                        <li>Each question has a time limit</li>
+                        <li>You can only take each quiz once</li>
+                        <li>Your answers are saved automatically</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="startQuiz()">
+                    <i class="fas fa-play me-2"></i>Start Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Schedule Modal -->
+<div class="modal fade" id="addScheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus me-2"></i>Add to Schedule
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addScheduleForm">
+                    <div class="mb-3">
+                        <label for="schedule_title" class="form-label fw-bold">Title</label>
+                        <input type="text" class="form-control" id="schedule_title" 
+                               name="title" placeholder="Enter schedule title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="schedule_type" class="form-label fw-bold">Type</label>
+                        <select class="form-select" id="schedule_type" name="type" required>
+                            <option value="">Select type</option>
+                            <option value="study">Study Session</option>
+                            <option value="test">Test/Exam</option>
+                            <option value="class">Live Class</option>
+                            <option value="assignment">Assignment</option>
+                            <option value="reminder">Reminder</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="schedule_datetime" class="form-label fw-bold">Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="schedule_datetime" 
+                               name="datetime" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="schedule_description" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="schedule_description" name="description" 
+                                  rows="3" placeholder="Enter description (optional)"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="schedule_priority" class="form-label fw-bold">Priority</label>
+                        <select class="form-select" id="schedule_priority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="addScheduleItem()">
+                    <i class="fas fa-plus me-2"></i>Add Schedule
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Performance Chart
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const performanceChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Correct', 'Incorrect', 'Unanswered'],
+            datasets: [{
+                data: [{{ avg_score }}, {{ 100 - avg_score }}, 10],
+                backgroundColor: ['#28a745', '#dc3545', '#6c757d'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Auto-uppercase quiz code
+    document.getElementById('quiz_code').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+
+    // Real-time study tracker
+    let studyStartTime = null;
+    let totalStudyTime = parseInt(localStorage.getItem('todayStudyTime')) || 0;
+    const dailyGoal = 150; // 2.5 hours in minutes
+
+    function updateStudyTracker() {
+        const hours = Math.floor(totalStudyTime / 60);
+        const minutes = totalStudyTime % 60;
+        const timeString = `${hours}h ${minutes}m`;
+        
+        document.getElementById('todayStudyTime').textContent = timeString;
+        document.getElementById('completedTime').textContent = timeString;
+        
+        const remaining = Math.max(0, dailyGoal - totalStudyTime);
+        const remainingHours = Math.floor(remaining / 60);
+        const remainingMinutes = remaining % 60;
+        document.getElementById('remainingTime').textContent = `${remainingHours}h ${remainingMinutes}m`;
+        
+        const progress = Math.min(100, (totalStudyTime / dailyGoal) * 100);
+        document.getElementById('studyProgress').style.width = `${progress}%`;
+        
+        // Update progress bar color based on progress
+        const progressBar = document.getElementById('studyProgress');
+        if (progress >= 100) {
+            progressBar.className = 'progress-bar bg-success';
+        } else if (progress >= 75) {
+            progressBar.className = 'progress-bar bg-info';
+        } else if (progress >= 50) {
+            progressBar.className = 'progress-bar bg-warning';
+        } else {
+            progressBar.className = 'progress-bar bg-primary';
+        }
+    }
+
+    // Track study time when user is active
+    let lastActivity = Date.now();
+    let studyInterval = null;
+
+    function startStudyTracking() {
+        if (!studyInterval) {
+            studyInterval = setInterval(() => {
+                const now = Date.now();
+                if (now - lastActivity < 60000) { // User active in last minute
+                    totalStudyTime++;
+                    localStorage.setItem('todayStudyTime', totalStudyTime);
+                    updateStudyTracker();
+                    
+                    // Milestone notifications
+                    if (totalStudyTime === 30) {
+                        showNotification('Great Start!', '30 minutes of focused study completed!', 'success');
+                    } else if (totalStudyTime === 60) {
+                        showNotification('One Hour Down!', 'You\'re making excellent progress!', 'success');
+                    } else if (totalStudyTime === dailyGoal) {
+                        showNotification('Daily Goal Achieved!', 'Congratulations! You\'ve reached your study goal!', 'success');
+                    }
+                }
+            }, 60000); // Check every minute
+        }
+    }
+
+    // Track user activity
+    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+        document.addEventListener(event, () => {
+            lastActivity = Date.now();
+        }, { passive: true });
+    });
+
+    // Reset daily study time at midnight
+    function checkDayReset() {
+        const lastDate = localStorage.getItem('lastStudyDate');
+        const today = new Date().toDateString();
+        
+        if (lastDate !== today) {
+            totalStudyTime = 0;
+            localStorage.setItem('todayStudyTime', '0');
+            localStorage.setItem('lastStudyDate', today);
+        }
+    }
+
+    // Initialize study tracker
+    checkDayReset();
+    updateStudyTracker();
+    startStudyTracking();
+</script>
+
+<script>
+function startQuiz() {
+    const quizCode = document.getElementById('quiz_code').value.trim();
+    
+    if (!quizCode) {
+        alert('Please enter a quiz code');
+        return;
+    }
+    
+    if (quizCode.length !== 6) {
+        alert('Quiz code must be 6 characters long');
+        return;
+    }
+    
+    // Redirect to quiz
+    window.location.href = `/take-quiz/${quizCode}`;
+}
+
+// Auto-focus on quiz code input when modal opens
+document.getElementById('takeQuizModal').addEventListener('shown.bs.modal', function() {
+    document.getElementById('quiz_code').focus();
+});
+
+// Schedule functionality
+let scheduleItems = JSON.parse(localStorage.getItem('studentSchedule')) || [];
+
+function loadSchedule() {
+    const scheduleList = document.getElementById('scheduleList');
+    
+    if (scheduleItems.length === 0) {
+        scheduleList.innerHTML = `
+            <div class="text-center py-3">
+                <i class="fas fa-calendar-plus fa-2x text-muted mb-2"></i>
+                <p class="text-muted small mb-0">No scheduled items</p>
+                <button class="btn btn-sm btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#addScheduleModal">
+                    <i class="fas fa-plus me-1"></i>Add Schedule
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort by datetime
+    scheduleItems.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+    
+    let html = '';
+    const now = new Date();
+    
+    scheduleItems.forEach((item, index) => {
+        const itemDate = new Date(item.datetime);
+        const isOverdue = itemDate < now;
+        const isToday = itemDate.toDateString() === now.toDateString();
+        
+        const priorityColors = {
+            low: 'secondary',
+            medium: 'warning',
+            high: 'danger'
+        };
+        
+        const typeIcons = {
+            study: 'fas fa-book',
+            test: 'fas fa-clipboard-check',
+            class: 'fas fa-video',
+            assignment: 'fas fa-tasks',
+            reminder: 'fas fa-bell'
+        };
+        
+        html += `
+            <div class="schedule-item border-start border-3 border-${priorityColors[item.priority]} p-3 mb-3 bg-light rounded-end ${isOverdue ? 'opacity-75' : ''}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="${typeIcons[item.type]} me-2 text-${priorityColors[item.priority]}"></i>
+                            <h6 class="mb-0 ${isOverdue ? 'text-muted text-decoration-line-through' : ''}">${item.title}</h6>
+                        </div>
+                        <div class="small text-muted mb-1">
+                            <i class="fas fa-clock me-1"></i>
+                            ${formatDateTime(item.datetime)}
+                            ${isToday ? '<span class="badge bg-primary ms-2">Today</span>' : ''}
+                            ${isOverdue ? '<span class="badge bg-danger ms-2">Overdue</span>' : ''}
+                        </div>
+                        ${item.description ? `<p class="small mb-0 text-muted">${item.description}</p>` : ''}
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="editScheduleItem(${index})">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="deleteScheduleItem(${index})">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    scheduleList.innerHTML = html;
+}
+
+function formatDateTime(datetime) {
+    const date = new Date(datetime);
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+function addScheduleItem() {
+    const form = document.getElementById('addScheduleForm');
+    const formData = new FormData(form);
+    
+    const newItem = {
+        id: Date.now(),
+        title: formData.get('title'),
+        type: formData.get('type'),
+        datetime: formData.get('datetime'),
+        description: formData.get('description'),
+        priority: formData.get('priority'),
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+    
+    if (!newItem.title || !newItem.type || !newItem.datetime) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    scheduleItems.push(newItem);
+    localStorage.setItem('studentSchedule', JSON.stringify(scheduleItems));
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addScheduleModal'));
+    modal.hide();
+    form.reset();
+    
+    // Reload schedule
+    loadSchedule();
+    
+    // Show success message
+    showNotification('Schedule item added successfully!', 'success');
+}
+
+function deleteScheduleItem(index) {
+    if (confirm('Are you sure you want to delete this schedule item?')) {
+        scheduleItems.splice(index, 1);
+        localStorage.setItem('studentSchedule', JSON.stringify(scheduleItems));
+        loadSchedule();
+        showNotification('Schedule item deleted!', 'info');
+    }
+}
+
+function editScheduleItem(index) {
+    const item = scheduleItems[index];
+    
+    // Fill form with existing data
+    document.getElementById('schedule_title').value = item.title;
+    document.getElementById('schedule_type').value = item.type;
+    document.getElementById('schedule_datetime').value = item.datetime;
+    document.getElementById('schedule_description').value = item.description || '';
+    document.getElementById('schedule_priority').value = item.priority;
+    
+    // Change button text and function
+    const addBtn = document.querySelector('#addScheduleModal .btn-primary');
+    addBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Schedule';
+    addBtn.onclick = function() { updateScheduleItem(index); };
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('addScheduleModal'));
+    modal.show();
+}
+
+function updateScheduleItem(index) {
+    const form = document.getElementById('addScheduleForm');
+    const formData = new FormData(form);
+    
+    scheduleItems[index] = {
+        ...scheduleItems[index],
+        title: formData.get('title'),
+        type: formData.get('type'),
+        datetime: formData.get('datetime'),
+        description: formData.get('description'),
+        priority: formData.get('priority')
+    };
+    
+    localStorage.setItem('studentSchedule', JSON.stringify(scheduleItems));
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addScheduleModal'));
+    modal.hide();
+    form.reset();
+    
+    // Reset button
+    const addBtn = document.querySelector('#addScheduleModal .btn-primary');
+    addBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Schedule';
+    addBtn.onclick = addScheduleItem;
+    
+    // Reload schedule
+    loadSchedule();
+    
+    showNotification('Schedule item updated!', 'success');
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 3000);
+}
+
+// Set minimum datetime to current time
+document.getElementById('schedule_datetime').min = new Date().toISOString().slice(0, 16);
+
+// Additional student dashboard functions
+function setStudyGoal() {
+    const newGoal = prompt('Set your daily study goal (in minutes):', '150');
+    if (newGoal && !isNaN(newGoal)) {
+        localStorage.setItem('dailyStudyGoal', newGoal);
+        dailyGoal = parseInt(newGoal);
+        updateStudyTracker();
+        showNotification('Study goal updated successfully!', 'success');
+    }
+}
+
+function viewStudyStats() {
+    const stats = {
+        totalTime: localStorage.getItem('totalStudyTime') || '0',
+        weeklyAverage: '135', // minutes
+        bestDay: '225', // minutes
+        currentStreak: '7'
+    };
+    
+    alert(`Study Statistics:
+Total Study Time: ${Math.floor(stats.totalTime / 60)}h ${stats.totalTime % 60}m
+Weekly Average: ${Math.floor(stats.weeklyAverage / 60)}h ${stats.weeklyAverage % 60}m
+Best Day: ${Math.floor(stats.bestDay / 60)}h ${stats.bestDay % 60}m
+Current Streak: ${stats.currentStreak} days`);
+}
+
+function resetStudyTime() {
+    if (confirm('Are you sure you want to reset today\'s study time?')) {
+        totalStudyTime = 0;
+        localStorage.setItem('todayStudyTime', '0');
+        updateStudyTracker();
+        showNotification('Study time reset!', 'info');
+    }
+}
+
+function startFocusSession() {
+    const duration = prompt('Focus session duration (minutes):', '25');
+    if (duration && !isNaN(duration)) {
+        showNotification(`Starting ${duration} minute focus session!`, 'success');
+        // Start focus timer
+        setTimeout(() => {
+            showNotification('Focus session complete! Great job!', 'success');
+        }, duration * 60000);
+    }
+}
+
+function openStudyPlanner() {
+    showNotification('Opening Study Planner...', 'info');
+    // This would open a comprehensive study planning interface
+    setTimeout(() => {
+        alert('Study Planner: Plan your weekly study schedule, set goals, and track progress across all subjects.');
+    }, 500);
+}
+
+function openNotesApp() {
+    showNotification('Opening Notes App...', 'info');
+    // This would open a note-taking interface
+    setTimeout(() => {
+        alert('Notes App: Create, organize, and sync your study notes across all devices.');
+    }, 500);
+}
+
+function openProgressTracker() {
+    showNotification('Opening Progress Tracker...', 'info');
+    // This would open detailed analytics
+    setTimeout(() => {
+        alert('Progress Tracker: Detailed analytics of your learning progress, strengths, and areas for improvement.');
+    }, 500);
+}
+
+// Enhanced notification system
+function showAdvancedNotification(title, message, type = 'info', actions = []) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed shadow-lg`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 350px; max-width: 400px;';
+    
+    let actionsHtml = '';
+    if (actions.length > 0) {
+        actionsHtml = '<div class="mt-2">';
+        actions.forEach(action => {
+            actionsHtml += `<button class="btn btn-sm btn-outline-${type} me-2" onclick="${action.onclick}">${action.text}</button>`;
+        });
+        actionsHtml += '</div>';
+    }
+    
+    notification.innerHTML = `
+        <div class="d-flex align-items-start">
+            <div class="flex-grow-1">
+                <strong>${title}</strong><br>
+                <small>${message}</small>
+                ${actionsHtml}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 8 seconds if no actions
+    if (actions.length === 0) {
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 8000);
+    }
+}
+
+// Study reminders and motivational messages
+function showStudyReminders() {
+    const reminders = [
+        { title: 'Study Break Reminder', message: 'You\'ve been studying for 45 minutes. Take a 5-minute break!' },
+        { title: 'Hydration Reminder', message: 'Don\'t forget to drink water while studying!' },
+        { title: 'Posture Check', message: 'Check your posture and stretch for better focus.' },
+        { title: 'Goal Progress', message: 'You\'re 75% towards your daily study goal. Keep going!' }
+    ];
+    
+    // Show random reminder every 30 minutes
+    setInterval(() => {
+        if (Math.random() < 0.3) { // 30% chance
+            const reminder = reminders[Math.floor(Math.random() * reminders.length)];
+            showAdvancedNotification(reminder.title, reminder.message, 'info');
+        }
+    }, 1800000); // 30 minutes
+}
+
+// Load schedule on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadSchedule();
+    showStudyReminders();
+    
+    // Reset modal when closed
+    document.getElementById('addScheduleModal').addEventListener('hidden.bs.modal', function() {
+        const form = document.getElementById('addScheduleForm');
+        form.reset();
+        
+        // Reset button
+        const addBtn = document.querySelector('#addScheduleModal .btn-primary');
+        addBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Schedule';
+        addBtn.onclick = addScheduleItem;
+    });
+    
+    // Welcome message for new users
+    const isNewUser = !localStorage.getItem('hasVisited');
+    if (isNewUser) {
+        setTimeout(() => {
+            showAdvancedNotification(
+                'Welcome to EduSphere!', 
+                'Explore your dashboard to track progress, join classes, and achieve your goals.',
+                'success',
+                [
+                    { text: 'Take Tour', onclick: 'startDashboardTour()' },
+                    { text: 'Got it!', onclick: 'dismissWelcome()' }
+                ]
+            );
+        }, 2000);
+        localStorage.setItem('hasVisited', 'true');
+    }
+});
+
+function startDashboardTour() {
+    showNotification('Starting dashboard tour...', 'info');
+    // This would start an interactive tour
+}
+
+function dismissWelcome() {
+    // Close any open notifications
+    document.querySelectorAll('.alert').forEach(alert => {
+        if (alert.parentNode) alert.remove();
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+
+});
+</script>
+{% endblock %}

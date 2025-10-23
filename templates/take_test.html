@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+
+{% block title %}{{ test[1] }} - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0" style="height: 100vh; overflow: hidden;">
+    <!-- Top Bar -->
+    <div class="bg-dark text-white p-2">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <h6 class="mb-0">{{ test[1] }}</h6>
+                <small class="text-muted">{{ test[3] }} - {{ test[4] }}</small>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-clock me-1"></i>
+                        <span id="timer" class="fw-bold">{{ test[5] }}:00</span>
+                    </div>
+                    <div>
+                        <span class="badge bg-info" id="progressBadge">0/{{ questions|length }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-sm btn-warning me-2" onclick="submitTest()">
+                    <i class="fas fa-check me-1"></i>Submit Test
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="exitTest()">
+                    <i class="fas fa-times me-1"></i>Exit
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-0" style="height: calc(100vh - 60px);">
+        <!-- Question Panel -->
+        <div class="col-md-9 p-4" style="overflow-y: auto;">
+            <div id="questionsContainer">
+                {% for question in questions %}
+                <div class="question-card card mb-4" id="question-{{ loop.index0 }}" 
+                     style="display: {{ 'block' if loop.first else 'none' }};">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Question {{ loop.index }} of {{ questions|length }}</h5>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-success me-2">+{{ question[6] }} marks</span>
+                                <span class="badge bg-danger">-1 mark</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="mb-4">{{ question[1] }}</h6>
+                        <div class="options">
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100 text-start option-btn" 
+                                        data-question="{{ question[0] }}" data-answer="A">
+                                    <strong>A)</strong> {{ question[2] }}
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100 text-start option-btn" 
+                                        data-question="{{ question[0] }}" data-answer="B">
+                                    <strong>B)</strong> {{ question[3] }}
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100 text-start option-btn" 
+                                        data-question="{{ question[0] }}" data-answer="C">
+                                    <strong>C)</strong> {{ question[4] }}
+                                </button>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100 text-start option-btn" 
+                                        data-question="{{ question[0] }}" data-answer="D">
+                                    <strong>D)</strong> {{ question[5] }}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <div>
+                                <button class="btn btn-secondary me-2" onclick="clearAnswer({{ loop.index0 }})">
+                                    <i class="fas fa-eraser me-1"></i>Clear
+                                </button>
+                                <button class="btn btn-warning" onclick="markForReview({{ loop.index0 }})">
+                                    <i class="fas fa-bookmark me-1"></i>Mark for Review
+                                </button>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-primary me-2" onclick="previousQuestion({{ loop.index0 }})" 
+                                        {{ 'disabled' if loop.first else '' }}>
+                                    <i class="fas fa-arrow-left me-1"></i>Previous
+                                </button>
+                                <button class="btn btn-primary" onclick="nextQuestion({{ loop.index0 }})">
+                                    {% if loop.last %}
+                                        <i class="fas fa-check me-1"></i>Review & Submit
+                                    {% else %}
+                                        Next<i class="fas fa-arrow-right ms-1"></i>
+                                    {% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Question Navigator -->
+        <div class="col-md-3 bg-light border-start p-3" style="overflow-y: auto;">
+            <h6 class="mb-3">
+                <i class="fas fa-list me-2"></i>Question Navigator
+            </h6>
+            
+            <!-- Legend -->
+            <div class="mb-3">
+                <div class="row text-center">
+                    <div class="col-6 mb-2">
+                        <div class="badge bg-success w-100">Answered</div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="badge bg-secondary w-100">Not Visited</div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="badge bg-warning w-100">Marked</div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="badge bg-danger w-100">Not Answered</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Question Grid -->
+            <div class="question-grid">
+                {% for question in questions %}
+                <button class="btn btn-sm btn-outline-secondary m-1 question-nav-btn" 
+                        id="nav-{{ loop.index0 }}" 
+                        onclick="goToQuestion({{ loop.index0 }})"
+                        style="width: 40px; height: 40px;">
+                    {{ loop.index }}
+                </button>
+                {% endfor %}
+            </div>
+            
+            <!-- Summary -->
+            <div class="mt-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Test Summary</h6>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="fw-bold text-success" id="answeredCount">0</div>
+                                <small>Answered</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="fw-bold text-warning" id="markedCount">0</div>
+                                <small>Marked</small>
+                            </div>
+                        </div>
+                        <div class="row text-center mt-2">
+                            <div class="col-6">
+                                <div class="fw-bold text-danger" id="notAnsweredCount">{{ questions|length }}</div>
+                                <small>Not Answered</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="fw-bold text-secondary" id="notVisitedCount">{{ questions|length - 1 }}</div>
+                                <small>Not Visited</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Confirmation Modal -->
+<div class="modal fade" id="submitModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Submit Test</h5>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Are you sure you want to submit the test?</strong>
+                </div>
+                <div class="row text-center">
+                    <div class="col-3">
+                        <div class="fw-bold text-success" id="finalAnswered">0</div>
+                        <small>Answered</small>
+                    </div>
+                    <div class="col-3">
+                        <div class="fw-bold text-warning" id="finalMarked">0</div>
+                        <small>Marked</small>
+                    </div>
+                    <div class="col-3">
+                        <div class="fw-bold text-danger" id="finalNotAnswered">0</div>
+                        <small>Not Answered</small>
+                    </div>
+                    <div class="col-3">
+                        <div class="fw-bold text-secondary" id="finalNotVisited">0</div>
+                        <small>Not Visited</small>
+                    </div>
+                </div>
+                <p class="mt-3 mb-0">Once submitted, you cannot change your answers.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="confirmSubmit()">
+                    <i class="fas fa-check me-2"></i>Submit Test
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables
+let currentQuestion = 0;
+let totalQuestions = {{ questions|length }};
+let timeLimit = {{ test[5] }} * 60; // Convert to seconds
+let attemptId = {{ attempt_id }};
+let answers = {};
+let questionStatus = {}; // 'answered', 'marked', 'visited', 'not-visited'
+let questionStartTime = Date.now();
+
+// Initialize test
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize question status
+    for (let i = 0; i < totalQuestions; i++) {
+        questionStatus[i] = i === 0 ? 'visited' : 'not-visited';
+    }
+    
+    // Start timer
+    startTimer();
+    
+    // Add click handlers for options
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectAnswer(this);
+        });
+    });
+    
+    // Update navigator
+    updateNavigator();
+    
+    // Prevent page refresh/back
+    window.addEventListener('beforeunload', function(e) {
+        e.preventDefault();
+        e.returnValue = '';
+    });
+});
+
+function startTimer() {
+    const timerElement = document.getElementById('timer');
+    
+    const timer = setInterval(() => {
+        timeLimit--;
+        
+        const hours = Math.floor(timeLimit / 3600);
+        const minutes = Math.floor((timeLimit % 3600) / 60);
+        const seconds = timeLimit % 60;
+        
+        timerElement.textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLimit <= 300) { // Last 5 minutes
+            timerElement.classList.add('text-danger');
+        }
+        
+        if (timeLimit <= 0) {
+            clearInterval(timer);
+            autoSubmitTest();
+        }
+    }, 1000);
+}
+
+function selectAnswer(button) {
+    const questionId = button.dataset.question;
+    const answer = button.dataset.answer;
+    const questionIndex = currentQuestion;
+    
+    // Clear previous selection
+    document.querySelectorAll(`#question-${questionIndex} .option-btn`).forEach(btn => {
+        btn.classList.remove('btn-success', 'btn-primary');
+        btn.classList.add('btn-outline-primary');
+    });
+    
+    // Mark selected
+    button.classList.remove('btn-outline-primary');
+    button.classList.add('btn-success');
+    
+    // Save answer
+    answers[questionId] = answer;
+    questionStatus[questionIndex] = 'answered';
+    
+    // Calculate time spent
+    const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000);
+    
+    // Submit answer to server
+    fetch('/submit-test-answer', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            attempt_id: attemptId,
+            question_id: parseInt(questionId),
+            selected_answer: answer,
+            time_spent: timeSpent
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateNavigator();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function nextQuestion(current) {
+    if (current === totalQuestions - 1) {
+        // Last question - show submit modal
+        showSubmitModal();
+        return;
+    }
+    
+    // Hide current question
+    document.getElementById(`question-${current}`).style.display = 'none';
+    
+    // Show next question
+    currentQuestion = current + 1;
+    document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+    
+    // Update status
+    if (questionStatus[currentQuestion] === 'not-visited') {
+        questionStatus[currentQuestion] = 'visited';
+    }
+    
+    // Reset question start time
+    questionStartTime = Date.now();
+    
+    updateNavigator();
+}
+
+function previousQuestion(current) {
+    if (current === 0) return;
+    
+    // Hide current question
+    document.getElementById(`question-${current}`).style.display = 'none';
+    
+    // Show previous question
+    currentQuestion = current - 1;
+    document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+    
+    // Reset question start time
+    questionStartTime = Date.now();
+    
+    updateNavigator();
+}
+
+function goToQuestion(questionIndex) {
+    // Hide current question
+    document.getElementById(`question-${currentQuestion}`).style.display = 'none';
+    
+    // Show selected question
+    currentQuestion = questionIndex;
+    document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+    
+    // Update status
+    if (questionStatus[currentQuestion] === 'not-visited') {
+        questionStatus[currentQuestion] = 'visited';
+    }
+    
+    // Reset question start time
+    questionStartTime = Date.now();
+    
+    updateNavigator();
+}
+
+function clearAnswer(questionIndex) {
+    const questionCard = document.getElementById(`question-${questionIndex}`);
+    const questionId = questionCard.querySelector('.option-btn').dataset.question;
+    
+    // Clear UI selection
+    questionCard.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.remove('btn-success', 'btn-primary');
+        btn.classList.add('btn-outline-primary');
+    });
+    
+    // Remove from answers
+    delete answers[questionId];
+    
+    // Update status
+    questionStatus[questionIndex] = 'visited';
+    
+    updateNavigator();
+}
+
+function markForReview(questionIndex) {
+    questionStatus[questionIndex] = 'marked';
+    updateNavigator();
+}
+
+function updateNavigator() {
+    let answered = 0, marked = 0, notAnswered = 0, notVisited = 0;
+    
+    for (let i = 0; i < totalQuestions; i++) {
+        const navBtn = document.getElementById(`nav-${i}`);
+        const status = questionStatus[i];
+        
+        // Reset classes
+        navBtn.className = 'btn btn-sm m-1 question-nav-btn';
+        navBtn.style.width = '40px';
+        navBtn.style.height = '40px';
+        
+        // Apply status styling
+        if (status === 'answered') {
+            navBtn.classList.add('btn-success');
+            answered++;
+        } else if (status === 'marked') {
+            navBtn.classList.add('btn-warning');
+            marked++;
+        } else if (status === 'visited') {
+            navBtn.classList.add('btn-danger');
+            notAnswered++;
+        } else {
+            navBtn.classList.add('btn-secondary');
+            notVisited++;
+        }
+        
+        // Highlight current question
+        if (i === currentQuestion) {
+            navBtn.style.border = '3px solid #000';
+        }
+    }
+    
+    // Update counters
+    document.getElementById('answeredCount').textContent = answered;
+    document.getElementById('markedCount').textContent = marked;
+    document.getElementById('notAnsweredCount').textContent = notAnswered;
+    document.getElementById('notVisitedCount').textContent = notVisited;
+    document.getElementById('progressBadge').textContent = `${answered}/${totalQuestions}`;
+}
+
+function showSubmitModal() {
+    // Update final counts
+    let answered = 0, marked = 0, notAnswered = 0, notVisited = 0;
+    
+    for (let i = 0; i < totalQuestions; i++) {
+        const status = questionStatus[i];
+        if (status === 'answered') answered++;
+        else if (status === 'marked') marked++;
+        else if (status === 'visited') notAnswered++;
+        else notVisited++;
+    }
+    
+    document.getElementById('finalAnswered').textContent = answered;
+    document.getElementById('finalMarked').textContent = marked;
+    document.getElementById('finalNotAnswered').textContent = notAnswered;
+    document.getElementById('finalNotVisited').textContent = notVisited;
+    
+    new bootstrap.Modal(document.getElementById('submitModal')).show();
+}
+
+function submitTest() {
+    showSubmitModal();
+}
+
+function confirmSubmit() {
+    // Submit test completion
+    fetch(`/complete-test/${attemptId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Redirect to results
+            window.location.href = `/test-result/${attemptId}`;
+        } else {
+            alert('Error submitting test: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the test');
+    });
+}
+
+function autoSubmitTest() {
+    alert('Time is up! Your test will be submitted automatically.');
+    confirmSubmit();
+}
+
+function exitTest() {
+    if (confirm('Are you sure you want to exit the test? Your progress will be saved.')) {
+        window.location.href = '/test-series';
+    }
+}
+</script>
+{% endblock %}

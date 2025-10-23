@@ -1,0 +1,858 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - EduSphere{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="welcome-header bg-gradient-danger text-white p-4 rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="fw-bold mb-1">Admin Dashboard</h1>
+                        <p class="mb-0 opacity-75">Welcome, {{ current_user.full_name or current_user.username }}! Manage the entire platform</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="badge bg-light text-danger fs-6 px-3 py-2">
+                            <i class="fas fa-user-shield me-1"></i>Administrator
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Students</h6>
+                            <h2 class="mb-0">{{ total_students }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-graduate fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Faculty</h6>
+                            <h2 class="mb-0">{{ total_faculty }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chalkboard-teacher fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Courses</h6>
+                            <h2 class="mb-0">{{ total_courses }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-book fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title opacity-75">Total Sessions</h6>
+                            <h2 class="mb-0">{{ total_sessions }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chalkboard fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs me-2"></i>Admin Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                <i class="fas fa-user-plus fa-2x mb-2"></i>
+                                <span>Add User</span>
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('admin_manage_courses') }}" class="btn btn-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-book fa-2x mb-2"></i>
+                                <span>Manage Courses</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('admin_analytics') }}" class="btn btn-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                                <span>Analytics</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('admin_system_settings') }}" class="btn btn-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-cog fa-2x mb-2"></i>
+                                <span>Settings</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                                <i class="fas fa-users fa-2x mb-2"></i>
+                                <span>Manage Users</span>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-danger w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3" onclick="createBackup()">
+                                <i class="fas fa-database fa-2x mb-2"></i>
+                                <span>Backup</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Users -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users me-2"></i>Recent Registrations
+                    </h5>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-plus me-1"></i>Add User
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if recent_users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Role</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in recent_users %}
+                                    <tr>
+                                        <td>{{ user[0] }}</td>
+                                        <td>
+                                            {% if user[1] == 'student' %}
+                                                <span class="badge bg-primary">Student</span>
+                                            {% elif user[1] == 'faculty' %}
+                                                <span class="badge bg-success">Faculty</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Admin</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ user[2] | dateformat('%b %d') }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No recent registrations</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Active Sessions -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-broadcast-tower me-2"></i>Active Sessions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if active_sessions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Teacher</th>
+                                        <th>Participants</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for session in active_sessions %}
+                                    <tr>
+                                        <td><span class="badge bg-success">{{ session[0] }}</span></td>
+                                        <td>{{ session[2] }}</td>
+                                        <td>{{ session[3] }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info" title="Monitor">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-broadcast-tower fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No active sessions</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Statistics and Admin Schedule -->
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Course Enrollment Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="courseChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>User Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="userChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Schedule -->
+        <div class="col-lg-3">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Admin Schedule
+                    </h5>
+                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#addAdminScheduleModal">
+                        <i class="fas fa-plus me-1"></i>Add
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="adminScheduleList">
+                        <!-- Schedule items will be loaded here -->
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar-plus fa-2x text-muted mb-2"></i>
+                            <p class="text-muted small mb-0">No scheduled items</p>
+                            <button class="btn btn-sm btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#addAdminScheduleModal">
+                                <i class="fas fa-plus me-1"></i>Add Schedule
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Admin Schedule Modal -->
+<div class="modal fade" id="addAdminScheduleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus me-2"></i>Add to Admin Schedule
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAdminScheduleForm">
+                    <div class="mb-3">
+                        <label for="admin_schedule_title" class="form-label fw-bold">Title</label>
+                        <input type="text" class="form-control" id="admin_schedule_title" 
+                               name="title" placeholder="Enter schedule title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="admin_schedule_type" class="form-label fw-bold">Type</label>
+                        <select class="form-select" id="admin_schedule_type" name="type" required>
+                            <option value="">Select type</option>
+                            <option value="meeting">Admin Meeting</option>
+                            <option value="review">Platform Review</option>
+                            <option value="maintenance">System Maintenance</option>
+                            <option value="audit">Security Audit</option>
+                            <option value="training">Staff Training</option>
+                            <option value="planning">Strategic Planning</option>
+                            <option value="reminder">Reminder</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="admin_schedule_datetime" class="form-label fw-bold">Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="admin_schedule_datetime" 
+                               name="datetime" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="admin_schedule_description" class="form-label fw-bold">Description</label>
+                        <textarea class="form-control" id="admin_schedule_description" name="description" 
+                                  rows="3" placeholder="Enter description (optional)"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="admin_schedule_priority" class="form-label fw-bold">Priority</label>
+                        <select class="form-select" id="admin_schedule_priority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="addAdminScheduleItem()">
+                    <i class="fas fa-plus me-2"></i>Add Schedule
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" required>
+                            <option value="">Select role</option>
+                            <option value="student">Student</option>
+                            <option value="faculty">Faculty</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Add User</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Course Modal -->
+<div class="modal fade" id="addCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Course</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCourseForm">
+                    <div class="mb-3">
+                        <label class="form-label">Course Title</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image URL</label>
+                        <input type="url" class="form-control">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success">Add Course</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Course Enrollment Chart
+    const courseCtx = document.getElementById('courseChart').getContext('2d');
+    const courseChart = new Chart(courseCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for course in course_stats %}'{{ course[0] }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Enrollments',
+                data: [{% for course in course_stats %}{{ course[1] }}{% if not loop.last %},{% endif %}{% endfor %}],
+                backgroundColor: '#007bff',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // User Distribution Chart
+    const userCtx = document.getElementById('userChart').getContext('2d');
+    const userChart = new Chart(userCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Students', 'Faculty', 'Admins'],
+            datasets: [{
+                data: [{{ total_students }}, {{ total_faculty }}, 1],
+                backgroundColor: ['#007bff', '#28a745', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+// Admin Schedule functionality
+let adminScheduleItems = JSON.parse(localStorage.getItem('adminSchedule')) || [];
+
+function loadAdminSchedule() {
+    const scheduleList = document.getElementById('adminScheduleList');
+    
+    if (adminScheduleItems.length === 0) {
+        scheduleList.innerHTML = `
+            <div class="text-center py-3">
+                <i class="fas fa-calendar-plus fa-2x text-muted mb-2"></i>
+                <p class="text-muted small mb-0">No scheduled items</p>
+                <button class="btn btn-sm btn-danger mt-2" data-bs-toggle="modal" data-bs-target="#addAdminScheduleModal">
+                    <i class="fas fa-plus me-1"></i>Add Schedule
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort by datetime
+    adminScheduleItems.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+    
+    let html = '';
+    const now = new Date();
+    
+    adminScheduleItems.forEach((item, index) => {
+        const itemDate = new Date(item.datetime);
+        const isOverdue = itemDate < now;
+        const isToday = itemDate.toDateString() === now.toDateString();
+        
+        const priorityColors = {
+            low: 'secondary',
+            medium: 'warning',
+            high: 'danger',
+            critical: 'dark'
+        };
+        
+        const typeIcons = {
+            meeting: 'fas fa-users',
+            review: 'fas fa-search',
+            maintenance: 'fas fa-tools',
+            audit: 'fas fa-shield-alt',
+            training: 'fas fa-graduation-cap',
+            planning: 'fas fa-chess',
+            reminder: 'fas fa-bell'
+        };
+        
+        html += `
+            <div class="schedule-item border-start border-3 border-${priorityColors[item.priority]} p-2 mb-2 bg-light rounded-end ${isOverdue ? 'opacity-75' : ''}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="${typeIcons[item.type]} me-2 text-${priorityColors[item.priority]}" style="font-size: 0.8rem;"></i>
+                            <h6 class="mb-0 small ${isOverdue ? 'text-muted text-decoration-line-through' : ''}">${item.title}</h6>
+                        </div>
+                        <div class="small text-muted mb-1" style="font-size: 0.75rem;">
+                            <i class="fas fa-clock me-1"></i>
+                            ${formatAdminDateTime(item.datetime)}
+                            ${isToday ? '<span class="badge bg-danger ms-1" style="font-size: 0.6rem;">Today</span>' : ''}
+                            ${isOverdue ? '<span class="badge bg-danger ms-1" style="font-size: 0.6rem;">Overdue</span>' : ''}
+                        </div>
+                        ${item.description ? `<p class="small mb-0 text-muted" style="font-size: 0.7rem;">${item.description.substring(0, 50)}${item.description.length > 50 ? '...' : ''}</p>` : ''}
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary" style="font-size: 0.7rem; padding: 0.2rem 0.4rem;" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item small" href="#" onclick="editAdminScheduleItem(${index})">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a></li>
+                            <li><a class="dropdown-item small text-danger" href="#" onclick="deleteAdminScheduleItem(${index})">
+                                <i class="fas fa-trash me-2"></i>Delete
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    scheduleList.innerHTML = html;
+}
+
+function formatAdminDateTime(datetime) {
+    const date = new Date(datetime);
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+function addAdminScheduleItem() {
+    const form = document.getElementById('addAdminScheduleForm');
+    const formData = new FormData(form);
+    
+    const newItem = {
+        id: Date.now(),
+        title: formData.get('title'),
+        type: formData.get('type'),
+        datetime: formData.get('datetime'),
+        description: formData.get('description'),
+        priority: formData.get('priority'),
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+    
+    if (!newItem.title || !newItem.type || !newItem.datetime) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    adminScheduleItems.push(newItem);
+    localStorage.setItem('adminSchedule', JSON.stringify(adminScheduleItems));
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addAdminScheduleModal'));
+    modal.hide();
+    form.reset();
+    
+    // Reload schedule
+    loadAdminSchedule();
+    
+    // Show success message
+    showAdminNotification('Schedule item added successfully!', 'success');
+}
+
+function deleteAdminScheduleItem(index) {
+    if (confirm('Are you sure you want to delete this schedule item?')) {
+        adminScheduleItems.splice(index, 1);
+        localStorage.setItem('adminSchedule', JSON.stringify(adminScheduleItems));
+        loadAdminSchedule();
+        showAdminNotification('Schedule item deleted!', 'info');
+    }
+}
+
+function editAdminScheduleItem(index) {
+    const item = adminScheduleItems[index];
+    
+    // Fill form with existing data
+    document.getElementById('admin_schedule_title').value = item.title;
+    document.getElementById('admin_schedule_type').value = item.type;
+    document.getElementById('admin_schedule_datetime').value = item.datetime;
+    document.getElementById('admin_schedule_description').value = item.description || '';
+    document.getElementById('admin_schedule_priority').value = item.priority;
+    
+    // Change button text and function
+    const addBtn = document.querySelector('#addAdminScheduleModal .btn-danger');
+    addBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Schedule';
+    addBtn.onclick = function() { updateAdminScheduleItem(index); };
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('addAdminScheduleModal'));
+    modal.show();
+}
+
+function updateAdminScheduleItem(index) {
+    const form = document.getElementById('addAdminScheduleForm');
+    const formData = new FormData(form);
+    
+    adminScheduleItems[index] = {
+        ...adminScheduleItems[index],
+        title: formData.get('title'),
+        type: formData.get('type'),
+        datetime: formData.get('datetime'),
+        description: formData.get('description'),
+        priority: formData.get('priority')
+    };
+    
+    localStorage.setItem('adminSchedule', JSON.stringify(adminScheduleItems));
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addAdminScheduleModal'));
+    modal.hide();
+    form.reset();
+    
+    // Reset button
+    const addBtn = document.querySelector('#addAdminScheduleModal .btn-danger');
+    addBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Schedule';
+    addBtn.onclick = addAdminScheduleItem;
+    
+    // Reload schedule
+    loadAdminSchedule();
+    
+    showAdminNotification('Schedule item updated!', 'success');
+}
+
+function showAdminNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 3000);
+}
+
+// Set minimum datetime to current time
+document.getElementById('admin_schedule_datetime').min = new Date().toISOString().slice(0, 16);
+
+// Admin action functions
+function createBackup() {
+    if (confirm('Create a backup of the database? This may take a few minutes.')) {
+        fetch('/admin/backup-database', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAdminNotification(`Backup created successfully: ${data.filename}`, 'success');
+            } else {
+                showAdminNotification('Backup failed: ' + data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAdminNotification('Backup failed', 'danger');
+        });
+    }
+}
+
+// Add user functionality
+document.querySelector('#addUserModal .btn-primary').addEventListener('click', function() {
+    const form = document.getElementById('addUserForm');
+    const inputs = form.querySelectorAll('input, select');
+    const userData = {};
+    
+    inputs.forEach(input => {
+        if (input.type === 'checkbox') {
+            userData[input.name || input.id] = input.checked;
+        } else {
+            userData[input.name || input.id] = input.value;
+        }
+    });
+    
+    // Map form fields to expected API fields
+    const apiData = {
+        full_name: userData.fullName || form.querySelector('input[type="text"]').value,
+        username: userData.username || form.querySelectorAll('input[type="text"]')[1].value,
+        email: userData.email || form.querySelector('input[type="email"]').value,
+        phone: userData.phone || '',
+        role: userData.role || form.querySelector('select').value,
+        password: userData.password || form.querySelector('input[type="password"]').value
+    };
+    
+    if (!apiData.full_name || !apiData.username || !apiData.email || !apiData.role || !apiData.password) {
+        showAdminNotification('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    fetch('/admin/add-user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAdminNotification('User added successfully!', 'success');
+            form.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAdminNotification('Error adding user: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAdminNotification('Error adding user', 'danger');
+    });
+});
+
+// Add course functionality
+document.querySelector('#addCourseModal .btn-success').addEventListener('click', function() {
+    const form = document.getElementById('addCourseForm');
+    const inputs = form.querySelectorAll('input, textarea');
+    
+    const title = inputs[0].value;
+    const description = inputs[1].value;
+    const imageUrl = inputs[2].value;
+    
+    if (!title || !description) {
+        showAdminNotification('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    fetch('/admin/add-course', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            title: title,
+            description: description,
+            image_url: imageUrl
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAdminNotification('Course added successfully!', 'success');
+            form.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addCourseModal')).hide();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAdminNotification('Error adding course: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAdminNotification('Error adding course', 'danger');
+    });
+});
+
+// Load admin schedule on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadAdminSchedule();
+    
+    // Reset modal when closed
+    document.getElementById('addAdminScheduleModal').addEventListener('hidden.bs.modal', function() {
+        const form = document.getElementById('addAdminScheduleForm');
+        form.reset();
+        
+        // Reset button
+        const addBtn = document.querySelector('#addAdminScheduleModal .btn-danger');
+        addBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Schedule';
+        addBtn.onclick = addAdminScheduleItem;
+    });
+});
+</script>
+{% endblock %}
