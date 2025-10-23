@@ -29,10 +29,6 @@ To create an all-in-one educational ecosystem that combines traditional learning
 | **Project Lead & Full Stack Developer** | **Ajay Kumar** | Backend architecture, database design, AI integration, system architecture |
 | **Frontend Developer & UI/UX Designer** | **Sidaray MS** | User interface design, responsive layouts, user experience optimization |
 
-**Project Timeline:** Techathon 2024  
-**Development Period:** [Project Duration]  
-**Institution:** [Your Institution Name]
-
 ---
 
 ## 🚀 **Core Features & Capabilities**
