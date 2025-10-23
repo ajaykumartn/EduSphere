@@ -379,6 +379,18 @@ def init_db():
 def index():
     return render_template('index.html')
 
+@app.route('/health')
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'message': 'EduSphere is running successfully!',
+        'database': 'connected' if os.path.exists(DATABASE_NAME) else 'not found'
+    })
+
+@app.route('/test')
+def test_route():
+    return '<h1>🎓 EduSphere is Working!</h1><p>If you see this, the Flask app is running correctly.</p><a href="/">Go to Homepage</a>'
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
