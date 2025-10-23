@@ -355,7 +355,7 @@ Feel free to use, modify, and distribute for learning and development.
 
 ## 🤝 Acknowledgments
 
-- **Techathon 2024** - For providing the platform to showcase innovation
+- **ThinkPlus** - For providing the platform to showcase innovation
 - **Open Source Community** - For the amazing tools and libraries
 - **Educational Institutions** - For inspiring the need for better learning platforms
 
